@@ -19,12 +19,17 @@ The best of Hasura's instant, realtime API's meshed together with Django's built
 - Ability to extend Hasura's logic through endpoints (+ getting auth-only endpoints for **free**).
 
 ## Get Started
-Running these 3 commands will get your project up and running:
+Running these 3 commands will get your project up and running (as long as you have Docker installed).
+For Docker installation - see here: https://docs.docker.com/get-docker/
+
 ```
 git clone https://github.com/mrtnmark/hasura-django-starter.git && cd ./hasura-django-starter && docker-compose up
 ```
 
-Your Hasura Console dashboard will be exposed at http://localhost:8080/console, and your GraphQL endpoint will be http://localhost:8080/v1/graphql
+Afterwards:
+- Your Hasura Console dashboard will be exposed at: http://localhost:8080/console
+- You can start creating / exposing tables to your API here: http://localhost:8080/console/data/schema/public
+- You can test with your GraphQL endpoint here: http://localhost:8080/v1/graphql
 
 -----
 
@@ -153,11 +158,9 @@ To test out your permission you can use it as a `x-hasura-role` header in your A
 
 ![Public Permission](./readme-permissions.png)
 
-```
 If you'd like to remove the sample migration which creates an initial the public posts table, a test user, and a post - you can do so by removing the directory: 
-./hasura/migrations/1609171942629_create_public_demo_table/
-```
-
+    ./hasura/migrations/1609171942629_create_public_demo_table/
+    
 ## Creating New Migrations
 
 Start by installing the Hasura CLI (https://hasura.io/docs/1.0/graphql/core/hasura-cli/install-hasura-cli.html):
