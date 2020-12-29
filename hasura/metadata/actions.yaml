@@ -1,0 +1,14 @@
+actions:
+- name: action_sample
+  definition:
+    kind: synchronous
+    handler: http://hds-django:8000/api/logic/hotdog/
+    forward_client_headers: true
+  permissions:
+  - role: user
+custom_types:
+  enums: []
+  input_objects: []
+  objects:
+  - name: sampleOutput
+  scalars: []

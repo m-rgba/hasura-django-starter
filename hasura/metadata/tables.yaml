@@ -1,0 +1,84 @@
+- table:
+    schema: public
+    name: api_profile
+  object_relationships:
+  - name: auth_user
+    using:
+      foreign_key_constraint_on: user_id
+- table:
+    schema: public
+    name: auth_user
+  object_relationships:
+  - name: api_profile
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: api_profile
+        column_mapping:
+          id: user_id
+  array_relationships:
+  - name: django_rest_passwordreset_resetpasswordtokens
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          schema: public
+          name: django_rest_passwordreset_resetpasswordtoken
+  - name: public_posts
+    using:
+      foreign_key_constraint_on:
+        column: id
+        table:
+          schema: public
+          name: public_posts
+  event_triggers:
+  - name: new_registration_email
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook: http://hds-django:8000/api/logic/new_registration_email/
+- table:
+    schema: public
+    name: django_rest_passwordreset_resetpasswordtoken
+  object_relationships:
+  - name: auth_user
+    using:
+      foreign_key_constraint_on: user_id
+  event_triggers:
+  - name: reset_password_email
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+      update:
+        columns:
+        - key
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook: http://hds-django:8000/api/logic/reset_password_email/
+- table:
+    schema: public
+    name: public_posts
+  object_relationships:
+  - name: auth_user
+    using:
+      foreign_key_constraint_on: id
+  select_permissions:
+  - role: public
+    permission:
+      columns:
+      - id
+      - title
+      - content
+      - created_at
+      - updated_at
+      - created_by
+      filter: {}
