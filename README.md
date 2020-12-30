@@ -145,6 +145,14 @@ This project makes use of 2 of Hasura's methods for extending it's generate CRUD
     - The logic looks at if the food entered is a hotdog and replies *true* of *false*.
     - The nice part of this we can lean on Django's built in `@permission_classes([IsAuthenticated])` decorator in `logic.py` to verify I'm a logged in user making the request (we're passing our headers from the action), and pair that with Hasura's permissions around which role should be able to make the request through GraphQL.
 
+## Setting Up Emails (and the Reset Password Flow)
+We have some sample email logic which can be found in `./django/api/logic.py` which can be uncommented and used as needed.
+
+For the reset password flow, generally you'll be looking to handle the token as:
+- Embed token in URL link in email (boilerplate shows one implementation of how you may want to do this).
+- In that URL, pass token as query-string which the client can use.
+- Client will call back to the `/api/reset_password/confirm/` endpoint with the user's token, email, and new password to reset the password.
+
 ## Using Hasura's Permission Management
 You can customize permissions logic based on the `Permission` tab of any table in the schema builder / explorer http://localhost:8080/console/data/schema/public
 
