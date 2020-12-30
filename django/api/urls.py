@@ -12,7 +12,7 @@ urlpatterns = (
     path('user/change_password/', ChangePassword.as_view(), name='change_password'),
     url('user/', include('django_rest_passwordreset.urls', namespace='password_reset')), 
             # + /reset_password/ 
-            # + /rest_password_confirm/ 
+            # + /reset_password/confirm/ 
             # + /reset_password/validate_token/
     # >>> Logic Samples
     path('logic/new_registration_email/', logic.new_registration_email, name='email_registration'),
