@@ -1,0 +1,94 @@
+<html>
+<head>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width,initial-scale=1'>
+    <title></title>
+
+    <script type="module" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Metrophobic&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <link rel='stylesheet' href='./core.css'>
+	<link rel='stylesheet' href='./style.css'>
+    <style>
+        .tbl-inspect{
+            width:32px;
+        }
+        .tbl-disable{
+            width:98px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav logo"><img src="./logo-light.svg" /></div>
+        <div class="nav"><a href="#!">Home</a></div>
+        <div style="margin-left:auto;" class="nav active"><a href="#!">Users</a></div>
+        <div class="nav"><a href="#!">Profile</a></div>
+        <div class="nav"><a href="#!">Logout</a></div>
+    </header>
+
+    <content>
+        <div class="container pt-xl mb-xl">
+            <div class="row">
+                <div class="col-12 mb-sm">
+                    <h1>Users</h1>
+                </div>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="pad flex-center">
+                            <button class="primary" style="">Create User</button>
+                            <input style="width:240px; margin-left:auto;" class="mr-xxs" placeholder="Search..." /> <button>Search</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="inspect tbl-inspect"></th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th class="actions tbl-disable"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="actions tbl-inspect">
+                                        <a class="muted" href="#!"><ion-icon class="" style="font-size:16px;" name="search-outline"></ion-icon></a>
+                                    </td>
+                                    <td><a href="">Lorem</a></td>
+                                    <td>Ipsum</td>
+                                    <td>Ipsum</td>
+                                    <td>Ipsum</td>
+                                    <td class="actions tbl-disable">
+                                        <a class="red" href="#!"><button class="red sm"><ion-icon class="" style="font-size:16px;" name="close-circle-outline"></ion-icon> Disable</button></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+
+    <footer>
+        <div class="row">
+            <div class="col-6">
+                <a href="https://hasura.io/" target="_new"><img class="poweredby" src="./logo-hasura.svg" /></a>
+                <a href="https://www.djangoproject.com/" target="_new"><img class="poweredby" src="./logo-django.svg" /></a>
+            </div>
+            <div class="col-6 right">
+                <a class="github-button" href="https://github.com/mrtnmark/hasura-django-starter" data-icon="octicon-logo-github" data-size="large" aria-label="Star mrtnmark/hasura-django-starter on GitHub">hasura-django-starter</a>
+                <a class="github-button" href="https://github.com/mrtnmark/hasura-django-starter/subscription" data-icon="octicon-eye" data-size="large" aria-label="Watch mrtnmark/hasura-django-starter on GitHub">Watch Repo</a>
+                <a class="github-button" href="https://github.com/mrtnmark/hasura-django-starter/archive/master.zip" data-icon="octicon-download" data-size="large" aria-label="Download mrtnmark/hasura-django-starter on GitHub">Download Repo</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
