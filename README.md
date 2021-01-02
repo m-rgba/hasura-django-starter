@@ -85,11 +85,13 @@ Contains all of our application logic:
     - Routing for API endpoints
 
 ## Changing Secrets
-**You should update your secrets and passwords**, everything in this demo is for demonstration purposes.
+- **You should update your secrets and passwords**, everything in this demo is for demonstration purposes.
+- You should be able to update everything by using the `docker-compose.yml` to configure your new secret key.
+- If updating the admin password for Hasura, you'll also need to update the `./hasura/config.yaml` in order to use the **Creating New Migrations** section below.
 
-You should be able to update everything by using the `docker-compose.yml` to configure.
+If you're running your Django container and would like to generate a new secret, you can do so by using the following command:
 
-If updating the admin password for Hasura, you'll also need to update the `./hasura/config.yaml` in order to use the **Creating New Migrations** section below.
+    docker exec hds-django bash -c 'python -c "import secrets; print(secrets.token_urlsafe())"'
 
 ***Note**: if you're using a `$` as a character, you need to use `$$` for docker-compose to interpolate it as `$`*.
 

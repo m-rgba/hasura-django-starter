@@ -22,8 +22,8 @@ services:
       - ./django:/code
     environment:
       PYTHONUNBUFFERED: 1
-      # Any $ in secret key need another $ before them for interpolation. > ex. `...4v$0n^c...` becomes `...4v$$0n^c...` (read readme.md)
-      DJANGO_SECRET: 'axf*4v$$0n^cv$$fnby!yx2+ek$$qv_ultvb)a-m_-(_-oyy!sns7'
+      # Any $ in your secret key needs another $ for interpolation. > ex. `...4v$0n^c...` becomes `...4v$$0n^c...` (read readme.md)
+      DJANGO_SECRET: 'T2uy8pg3OjW26TdngnPA3LjuPlthW8AH6xIOBXu9oFs'
     ports:
       - "127.0.0.1:8000:8000"
 
@@ -45,7 +45,8 @@ services:
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: 'public'
       HASURA_GRAPHQL_DATABASE_URL: 'postgres://postgres:password@postgres:5432/postgres'
       HASURA_GRAPHQL_ADMIN_SECRET: 'password'
-      # Any $ in secret key need another $ before them for interpolation. > ex. `...4v$0n^c...` becomes `...4v$$0n^c...` (read readme.md)
-      HASURA_GRAPHQL_JWT_SECRET: '{ "type": "HS256", "key": "axf*4v$$0n^cv$$fnby!yx2+ek$$qv_ultvb)a-m_-(_-oyy!sns7" }'
+      # Any $ in your secret key needs another $ for interpolation. > ex. `...4v$0n^c...` becomes `...4v$$0n^c...` (read readme.md)
+      HASURA_GRAPHQL_JWT_SECRET: '{ "type": "HS256", "key": "T2uy8pg3OjW26TdngnPA3LjuPlthW8AH6xIOBXu9oFs" }'
     ports:
       - "127.0.0.1:8080:8080"
+
