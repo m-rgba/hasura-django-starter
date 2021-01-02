@@ -9,6 +9,5 @@ django-import-export<3
 psycopg2<3
 gunicorn<21
 django-cors-headers<4
-whitenoise<6
 requests<3
 uuid<2

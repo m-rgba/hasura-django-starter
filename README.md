@@ -1,8 +1,8 @@
-# Hasura + Django Starter
+# Hasura + Django Starter (HDS)
 
-A starter project which pairs up the best features of Hasura with Django ❤️
+A project starter which pairs up the best features of Hasura with Django ❤️
 
-The best of Hasura's instant, realtime API's meshed together with Django's built-in auth model and the ability to extend logic across the two services.
+The best of Hasura's instant, realtime GraphQL API meshed with Django's built-in auth model and the ability to extend logic across the two services.
 
 ### Hasura
 - Auto-generate GraphQL API for any Postgres database.
@@ -26,10 +26,21 @@ For Docker installation - see here: https://docs.docker.com/get-docker/
 git clone https://github.com/mrtnmark/hasura-django-starter.git && cd ./hasura-django-starter && docker-compose up
 ```
 
+***Already cloned the repo?*** Just run `docker-compose up` from the project directory.
+
 Afterwards:
 - Your Hasura Console dashboard will be exposed at: http://localhost:8080/console
 - You can start creating / exposing tables to your API here: http://localhost:8080/console/data/schema/public
 - You can test with your GraphQL endpoint here: http://localhost:8080/v1/graphql
+
+## Client (Frontend) Startup
+## Svelte
+[ToDo] Write client docs.
+
+From the project directory:
+```
+docker-compose up -f docker-compose.yml -f docker-compose-svelte.yml
+```
 
 -----
 
@@ -59,7 +70,8 @@ Contains all of our application logic:
 
 - admin.py
     - What shows up in the Django admin interface (currently disabled, but configured to show any custom info for users)
-- apps.py > general configuration options
+- apps.py
+    - General configuration options
 - models.py
     - Extends user model
     - Adds `user`, `role` (for custom roles), `registration_sent` (flag for registration email), `uuid` as a lookup to default user model.
@@ -69,7 +81,8 @@ Contains all of our application logic:
 - logic.py
     - Contains any extended logic (this is where you can write custom functions).
     - This is used below for our email eventing examples, and a custom action example where Hasura -> <- from Django.
-- urls.py > routing for API endpoints
+- urls.py
+    - Routing for API endpoints
 
 ## Changing Secrets
 **You should update your secrets and passwords**, everything in this demo is for demonstration purposes.
@@ -83,12 +96,6 @@ If updating the admin password for Hasura, you'll also need to update the `./has
 More information here: https://stackoverflow.com/questions/40619582/how-can-i-escape-a-dollar-sign-in-a-docker-compose-file
 
 ## Django Auth Endpoints
-Want to test these endpoints pre-development?
-
-In `docker-compose.yml` if you uncomment the `Hoppscotch` service it will serve a request builder at http://localhost:3000.
-
-I would also recommend Postman (paid) or Insomnia (OSS).
-
     http://localhost:8000/api/user/register/
 
 `POST` : accepts `username`, `email`, and `password`. Returns new user info and a first set of returned tokens.
@@ -126,6 +133,17 @@ I would also recommend Postman (paid) or Insomnia (OSS).
     http://localhost:8000/api/user/reset_password/confirm/
 
 `POST` : accepts `email`, `token`, `password` (new password). Returns 200 status if the token + email pair is verified and the password is updated.
+
+## Want to test these endpoints pre-development?
+From the project directory:
+```
+docker-compose up -f docker-compose.yml -f docker-compose-hoppscotch.yml
+```
+
+In `docker-compose.yml` if you uncomment the `Hoppscotch` service it will serve a request builder at http://localhost:3000.
+
+I would also recommend Postman (paid) or Insomnia (OSS).
+
 
 -----
 

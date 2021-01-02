@@ -49,13 +49,3 @@ services:
       HASURA_GRAPHQL_JWT_SECRET: '{ "type": "HS256", "key": "axf*4v$$0n^cv$$fnby!yx2+ek$$qv_ultvb)a-m_-(_-oyy!sns7" }'
     ports:
       - "127.0.0.1:8080:8080"
-
-  # Need to test either API from within the network? Uncomment this service + visit localhost:3000
-  # hoppscotch:
-  #   image: hoppscotch/hoppscotch:latest
-  #   container_name: hds-hoppscotch
-  #   depends_on:
-  #     - 'hasura'
-  #     - 'django'
-  #   ports:
-  #     - "127.0.0.1:3000:3000"
