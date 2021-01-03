@@ -39,7 +39,7 @@ Afterwards:
 
 From the project directory:
 ```
-docker-compose up -f docker-compose.yml -f docker-compose-svelte.yml
+docker-compose -f docker-compose.yml -f docker-compose-client-svelte.yml up
 ```
 
 -----
@@ -139,7 +139,7 @@ More information here: https://stackoverflow.com/questions/40619582/how-can-i-es
 ## Want to test these endpoints pre-development?
 From the project directory:
 ```
-docker-compose up -f docker-compose.yml -f docker-compose-hoppscotch.yml
+docker-compose -f docker-compose.yml -f docker-compose-hoppscotch.yml up
 ```
 
 In `docker-compose.yml` if you uncomment the `Hoppscotch` service it will serve a request builder at http://localhost:3000.
