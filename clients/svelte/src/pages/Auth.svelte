@@ -27,8 +27,8 @@
     let checkPass;
 
     onMount(() => {
-        console.log($authToken)
-        console.log(Cookies.get('refresh'));
+        // console.log($authToken)
+        // console.log(Cookies.get('refresh'));
     });
 
     async function signupHandler() {

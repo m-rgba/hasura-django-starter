@@ -1,6 +1,6 @@
 <script>
     import { onMount } from "svelte";
-	import { authToken } from './stores/auth.js'
+	import { authToken } from '../stores/auth.js'
     import { token, authSuccess } from "../App.svelte"
 
     // Components
@@ -11,22 +11,22 @@
 
     });
 
-    function getUsers() {
-        const request = await fetch("http://localhost:8000/api/user/reset_password/", {
+    async function getUsers() {
+        const query = `
+        `;
+        const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
+                Authorization: "Bearer: " + $authToken
             },
             body: JSON.stringify({ email }),
         });
         if (request.ok) {
-            successMessage = 'We\'ve sent you an email to confirm your account. Selecting the link from your email will allow you to reset the password to your account.';
         } else {
-            errorMessage = 'It looks like there was a problem. This could be because that email isn\'t associated with any accounts in our system. Please try again.';
         }
     }
-
 </script>
 
 <Header />

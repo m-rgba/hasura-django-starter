@@ -1,6 +1,6 @@
 <script>
     import { onMount } from "svelte";
-	import { Router, Route } from "svelte-routing";
+	import { Router, Route, navigate } from "svelte-routing";
 	import Cookies from 'js-cookie'
 
 	import { authToken } from './stores/auth.js'
@@ -26,10 +26,12 @@
 		token();
 	});
 
-	function token() {
+	function token() {		
 		if ($authToken){
+			console.log('Running Verify Token');
 			verifyToken();
 		} else if (refresh){
+			console.log('Running Get New Token');
 			getNewToken();
 		} else {
 			noToken();
@@ -56,7 +58,7 @@
 			authSuccess = true;
 		} else {
 			// Remove old token, try to get new one
-			$authToken = null;
+			$authToken = '';
 			getNewToken();
 		}
 	}
@@ -79,14 +81,14 @@
 				loaded = true;
 			} else {
 				// Clear everything > go to login
-				$authToken = null;
-				Cookies.set('refresh', null)
+				$authToken = '';
+				Cookies.set('refresh', '', { sameSite: 'strict' })
 				loaded = true;
 			}
 		} else {
 			// Clear everything > go to login
-			$authToken = null;
-			Cookies.set('refresh', null)
+			$authToken = '';
+			Cookies.set('refresh', '', { sameSite: 'strict' })
 			loaded = true;
 		}
 	}

@@ -1,12 +1,12 @@
 from django.urls import path, include
 from django.conf.urls import url, include
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
-from .auth import HasuraTokenObtainPair, RegisterUser, ChangePassword
+from .auth import HasuraTokenObtainPair, ValidateTokenRefreshView, RegisterUser, ChangePassword
 from . import logic
 
 urlpatterns = (
     path('token/', HasuraTokenObtainPair.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/refresh/', ValidateTokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('user/register/', RegisterUser.as_view(), name='register_user'),
     path('user/change_password/', ChangePassword.as_view(), name='change_password'),
