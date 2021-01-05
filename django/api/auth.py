@@ -12,6 +12,10 @@ import requests
 import logging
 import json
 
+# TODO: Create re-issue endpoint
+# refresh = HasuraTokenObtainPairSerializer.get_token(user)
+# return Response(data={'refresh': str(refresh), 'access': str(refresh.access_token)})
+
 # Hasura > JWT Specifics
 class HasuraTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -49,11 +53,7 @@ class ValidateTokenRefreshSerializer(TokenRefreshSerializer):
                 self.error_msg, 'no_active_account'
             )
 
-        if user.profile.role != token_payload['https://hasura.io/jwt/claims']['x-hasura-default-role']:
-            # TODO: Create re-issue endpoint
-            # refresh = HasuraTokenObtainPairSerializer.get_token(user)
-            # return Response(data={'refresh': str(refresh), 'access': str(refresh.access_token)})
-            
+        if user.profile.role != token_payload['https://hasura.io/jwt/claims']['x-hasura-default-role']:            
             print(user.profile.role)
             print(token_payload['https://hasura.io/jwt/claims']['x-hasura-default-role'])
             print('Roles Dont Match')

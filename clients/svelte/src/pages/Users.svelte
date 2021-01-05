@@ -1,30 +1,46 @@
 <script>
     import { onMount } from "svelte";
 	import { authToken } from '../stores/auth.js'
-    import { token, authSuccess } from "../App.svelte"
+    // import { token, authSuccess } from "../App.svelte"
 
     // Components
     import Header from "../components/Header.svelte"
     import Footer from "../components/Footer.svelte"
 
     onMount(() => {
-
+        getUsersAdmin();
     });
 
-    async function getUsers() {
-        const query = `
-        `;
+    async function getUsersAdmin() {
+        const query = JSON.stringify({
+            query: `
+                query allUsers {
+                    auth_user {
+                        id
+                        username
+                        email
+                        is_active
+                        api_profile {
+                            role
+                        }
+                    }
+                }
+            `
+            });
         const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
-                Authorization: "Bearer: " + $authToken
+                Authorization: "Bearer " + $authToken,
             },
-            body: JSON.stringify({ email }),
+            body: query
         });
         if (request.ok) {
+            const response = await request.json();
+            console.log(response)
         } else {
+            console.log('Query Error...')
         }
     }
 </script>

@@ -50,7 +50,9 @@
 				"Content-Type": "application/json",
 				Accept: "application/json",
 			},
-			body: JSON.stringify({ "token" : $authToken }),
+			body: JSON.stringify({
+				"token" : $authToken 
+			}),
 		});
 		if (request.ok) {
 			// Load up to homepage
@@ -70,7 +72,9 @@
 				"Content-Type": "application/json",
 				Accept: "application/json",
 			},
-			body: JSON.stringify({ refresh }),
+			body: JSON.stringify({ 
+				"refresh" : refresh 
+			}),
 		});
 		if (request.ok) {
 			const response = await request.json();
@@ -90,6 +94,7 @@
 			$authToken = '';
 			Cookies.set('refresh', '', { sameSite: 'strict' })
 			loaded = true;
+			navigate("/login", { replace: true });
 		}
 	}
 

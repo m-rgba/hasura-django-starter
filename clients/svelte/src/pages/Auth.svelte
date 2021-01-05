@@ -43,7 +43,11 @@
                     "Content-Type": "application/json",
                     Accept: "application/json",
                 },
-                body: JSON.stringify({ username, email, password }),
+                body: JSON.stringify({ 
+                    "username" : username, 
+                    "email" : email,
+                    "password" : password 
+                }),
             });
             if (request.ok) {
                 const response = await request.json();
@@ -100,7 +104,10 @@
                 "Content-Type": "application/json",
                 Accept: "application/json",
             },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({ 
+                "username" : username,
+                "password" : password 
+            }),
         });
         if (request.ok) {
             const response = await request.json();
@@ -123,7 +130,9 @@
                 "Content-Type": "application/json",
                 Accept: "application/json",
             },
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ 
+                "email" : email
+            }),
         });
         if (request.ok) {
             successMessage = 'We\'ve sent you an email to confirm your account. Selecting the link from your email will allow you to reset the password to your account.';

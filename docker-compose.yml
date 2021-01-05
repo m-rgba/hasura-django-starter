@@ -11,13 +11,11 @@ services:
       POSTGRES_PASSWORD: 'password'
       
   django:
-    image: python:3
+    build: ./django
     container_name: hds-django
     restart: always
     depends_on:
       - 'postgres'
-    working_dir: /code
-    command: bash -c "pip install --upgrade pip && pip install -r requirements.txt && python ./manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./django:/code
     environment:

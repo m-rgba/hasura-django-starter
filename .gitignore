@@ -1,4 +1,4 @@
-# Django
+# Django / Svelte / React
 *.egg-info
 *.pot
 *.py[co]
@@ -13,6 +13,11 @@ tests/coverage_html/
 tests/.coverage
 build/
 tests/report/
+package-lock.json
+/.pnp
+.pnp.js
+django/static/*
+!django/static/__init__.py
 
 # OS Specific Jams
 .DS_Store
