@@ -1,0 +1,70 @@
+<html>
+<head>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width,initial-scale=1'>
+    <title></title>
+
+    <script src="https://unpkg.com/ionicons@5.2.3/dist/ionicons.js"></script>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Metrophobic&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <link rel='stylesheet' href='./core.css'>
+	<link rel='stylesheet' href='./style.css'>
+</head>
+<body>
+    <header>
+        <div class="nav logo"><img src="./logo-light.svg" /></div>
+        <div class="nav"><a href="#!">Home</a></div>
+        <div style="margin-left:auto;" class="nav"><a href="#!">Users</a></div>
+        <div class="nav"><a href="#!">Profile</a></div>
+        <div class="nav"><a href="#!">Logout</a></div>
+    </header>
+
+    <content>
+        <div class="container pt-xl mb-xl">
+            <div class="row">
+                <div class="col-3"> </div>
+                <div class="col-6 mb-sm">
+                    <h1 class="mb-xxs">Edit User</h1>
+                    <a class="muted" href="#!"><ion-icon name="arrow-back"></ion-icon> Back to Users</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-3"> </div>
+                <div class="col-6">
+                    <div class="card mb-xs">
+                        <div class="pad">
+                            <p class="strong">Username</p>
+                            <input class="w-100 mb-xs" disabled placeholder="Username..." />
+                            <p class="strong">Current Email</p>
+                            <input class="w-100 mb-xs" disabled placeholder="Email..." />
+                            <p class="strong">Update Email</p>
+                            <input class="w-100 mb-xs" placeholder="Update Email..." />
+                            <button class="w-100 mb-xs">Update Email</button>
+                        </div>
+                    </div>
+                    <a class="red" href="#!"><ion-icon name="close-circle-outline"></ion-icon> Disable User</a>
+                </div>
+            </div>
+        </div>
+    </content>
+
+    <footer>
+        <div class="row">
+            <div class="col-6">
+                <a href="https://hasura.io/" target="_new"><img class="poweredby" src="./logo-hasura.svg" /></a>
+                <a href="https://www.djangoproject.com/" target="_new"><img class="poweredby" src="./logo-django.svg" /></a>
+            </div>
+            <div class="col-6 right">
+                <a class="github-button" href="https://github.com/mrtnmark/hasura-django-starter" data-icon="octicon-logo-github" data-size="large" aria-label="Star mrtnmark/hasura-django-starter on GitHub">hasura-django-starter</a>
+                <a class="github-button" href="https://github.com/mrtnmark/hasura-django-starter/subscription" data-icon="octicon-eye" data-size="large" aria-label="Watch mrtnmark/hasura-django-starter on GitHub">Watch Repo</a>
+                <a class="github-button" href="https://github.com/mrtnmark/hasura-django-starter/archive/master.zip" data-icon="octicon-download" data-size="large" aria-label="Download mrtnmark/hasura-django-starter on GitHub">Download Repo</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

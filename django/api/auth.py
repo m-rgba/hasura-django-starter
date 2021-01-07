@@ -1,21 +1,28 @@
 from rest_framework import serializers, status, permissions, generics, views
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import exceptions
+from rest_framework_simplejwt.state import token_backend
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from rest_framework_simplejwt import authentication
 from django.contrib.auth.models import User 
 from api.models import profile
 import requests
 import logging
 import json
-    
+
+# TODO: Create re-issue endpoint
+# refresh = HasuraTokenObtainPairSerializer.get_token(user)
+# return Response(data={'refresh': str(refresh), 'access': str(refresh.access_token)})
+
 # Hasura > JWT Specifics
 class HasuraTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
         token['user_name'] = user.username
+        token['user_email'] = user.email
         token['https://hasura.io/jwt/claims'] = {}
         token['https://hasura.io/jwt/claims']['x-hasura-allowed-roles'] = [user.profile.role]
         token['https://hasura.io/jwt/claims']['x-hasura-default-role'] = user.profile.role
@@ -24,6 +31,40 @@ class HasuraTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class HasuraTokenObtainPair(TokenObtainPairView):
     serializer_class = HasuraTokenObtainPairSerializer
+
+class ValidateTokenRefreshSerializer(TokenRefreshSerializer):
+    # Validate user account is active, and the user role matches the issued JWT
+    # Based on: https://github.com/SimpleJWT/django-rest-framework-simplejwt/issues/193
+    error_msg = 'No active account found with the given credentials'
+
+    def validate(self, attrs):
+        token_payload = token_backend.decode(attrs['refresh'])
+        try:
+            user = User.objects.get(pk=token_payload['user_id'])
+        except User.DoesNotExist:
+            print('User does not exist')
+            raise exceptions.AuthenticationFailed(
+                self.error_msg, 'no_active_account'
+            )
+
+        if not user.is_active or user.email != token_payload['user_email']:
+            print('Email Does Not Exist / Non-Active')
+            raise exceptions.AuthenticationFailed(
+                self.error_msg, 'no_active_account'
+            )
+
+        if user.profile.role != token_payload['https://hasura.io/jwt/claims']['x-hasura-default-role']:            
+            print(user.profile.role)
+            print(token_payload['https://hasura.io/jwt/claims']['x-hasura-default-role'])
+            print('Roles Dont Match')
+            raise exceptions.AuthenticationFailed(
+                self.error_msg, 'no_active_account'
+            )
+            
+        return super().validate(attrs)
+
+class ValidateTokenRefreshView(TokenRefreshView):
+    serializer_class = ValidateTokenRefreshSerializer
 
 # Serializers
 class UserSerializer(serializers.ModelSerializer):

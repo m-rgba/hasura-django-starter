@@ -1,8 +1,10 @@
-# Hasura + Django Starter
+# Hasura + Django Starter (HDS)
 
-A starter project which pairs up the best features of Hasura with Django ❤️
+A project starter which pairs up the best features of Hasura with Django ❤️
 
-The best of Hasura's instant, realtime API's meshed together with Django's built-in auth model and the ability to extend logic across the two services.
+***(Now with 100% more Svelte client examples)***
+
+The best of Hasura's instant, realtime GraphQL API meshed with Django's built-in auth model and the ability to extend logic across the two services.
 
 ### Hasura
 - Auto-generate GraphQL API for any Postgres database.
@@ -17,19 +19,31 @@ The best of Hasura's instant, realtime API's meshed together with Django's built
 - JWT tokens (Simple-JWT), with custom Hasura claims by way of Django's built-in auth-layer.
 - Extended user model (added role, registration, UUID, registration_sent > flag for new user emails).
 - Ability to extend Hasura's logic through endpoints (+ getting auth-only endpoints for **free**).
+- Django-specific database migrations and container auto-apply (user model).
 
 ## Get Started
 Running these 3 commands will get your project up and running (as long as you have Docker installed).
 For Docker installation - see here: https://docs.docker.com/get-docker/
 
 ```
-git clone https://github.com/mrtnmark/hasura-django-starter.git && cd ./hasura-django-starter && docker-compose up
+git clone https://github.com/mm-io/hasura-django-starter.git && cd ./hasura-django-starter && docker-compose up
 ```
+
+***Already cloned the repo?*** Just run `docker-compose up` from the project directory.
 
 Afterwards:
 - Your Hasura Console dashboard will be exposed at: http://localhost:8080/console
 - You can start creating / exposing tables to your API here: http://localhost:8080/console/data/schema/public
 - You can test with your GraphQL endpoint here: http://localhost:8080/v1/graphql
+
+## Client (Frontend) Startup
+## Svelte
+[ToDo] Write client docs.
+
+From the project directory:
+```
+docker-compose -f docker-compose.yml -f docker-compose-client-svelte.yml up
+```
 
 -----
 
@@ -59,7 +73,8 @@ Contains all of our application logic:
 
 - admin.py
     - What shows up in the Django admin interface (currently disabled, but configured to show any custom info for users)
-- apps.py > general configuration options
+- apps.py
+    - General configuration options
 - models.py
     - Extends user model
     - Adds `user`, `role` (for custom roles), `registration_sent` (flag for registration email), `uuid` as a lookup to default user model.
@@ -69,26 +84,23 @@ Contains all of our application logic:
 - logic.py
     - Contains any extended logic (this is where you can write custom functions).
     - This is used below for our email eventing examples, and a custom action example where Hasura -> <- from Django.
-- urls.py > routing for API endpoints
+- urls.py
+    - Routing for API endpoints
 
 ## Changing Secrets
-**You should update your secrets and passwords**, everything in this demo is for demonstration purposes.
+- **You should update your secrets and passwords**, everything in this demo is for demonstration purposes.
+- You should be able to update everything by using the `docker-compose.yml` to configure your new secret key.
+- If updating the admin password for Hasura, you'll also need to update the `./hasura/config.yaml` in order to use the **Creating New Migrations** section below.
 
-You should be able to update everything by using the `docker-compose.yml` to configure.
+If you're running your Django container and would like to generate a new secret, you can do so by using the following command:
 
-If updating the admin password for Hasura, you'll also need to update the `./hasura/config.yaml` in order to use the **Creating New Migrations** section below.
+    docker exec hds-django bash -c 'python -c "import secrets; print(secrets.token_urlsafe())"'
 
 ***Note**: if you're using a `$` as a character, you need to use `$$` for docker-compose to interpolate it as `$`*.
 
 More information here: https://stackoverflow.com/questions/40619582/how-can-i-escape-a-dollar-sign-in-a-docker-compose-file
 
 ## Django Auth Endpoints
-Want to test these endpoints pre-development?
-
-In `docker-compose.yml` if you uncomment the `Hoppscotch` service it will serve a request builder at http://localhost:3000.
-
-I would also recommend Postman (paid) or Insomnia (OSS).
-
     http://localhost:8000/api/user/register/
 
 `POST` : accepts `username`, `email`, and `password`. Returns new user info and a first set of returned tokens.
@@ -115,10 +127,6 @@ I would also recommend Postman (paid) or Insomnia (OSS).
 
 *Note: there's a message below in **Events** in where you can add your SMTP email logic logic.*
 
-    http://localhost:8000/api/user/reset_password/
-
-`POST` : accepts `old_password`, `new_password`. Requires `authorization` header with access token.
-
     http://localhost:8000/api/user/reset_password/validate/
 
 `POST` : accepts `email` and `token`. Returns 200 status if the token is verified.
@@ -127,9 +135,20 @@ I would also recommend Postman (paid) or Insomnia (OSS).
 
 `POST` : accepts `email`, `token`, `password` (new password). Returns 200 status if the token + email pair is verified and the password is updated.
 
+## Want to test these endpoints pre-development?
+From the project directory:
+```
+docker-compose -f docker-compose.yml -f docker-compose-hoppscotch.yml up
+```
+
+In `docker-compose.yml` if you uncomment the `Hoppscotch` service it will serve a request builder at http://localhost:3000.
+
+I would also recommend Postman (paid) or Insomnia (OSS).
+
+
 -----
 
-## Using Hasura + Django to Handle Advanced Logic
+## Using Hasura + Django to Handle Advanced Business Logic
 This project makes use of 2 of Hasura's methods for extending it's generate CRUD API.
 
 ### Events
@@ -152,6 +171,24 @@ For the reset password flow, generally you'll be looking to handle the token as:
 - Embed token in URL link in email (boilerplate shows one implementation of how you may want to do this).
 - In that URL, pass token as query-string which the client can use.
 - Client will call back to the `/api/reset_password/confirm/` endpoint with the user's token, email, and new password to reset the password.
+
+## JWT Handling
+We've made a couple of small changes to how we handle JWT tokens vs the standard SimpleJWT implementation. 
+
+There are typically 2 gotchas when handling tokens:
+
+- How can I revoke a token (instances of deactivating accounts)?
+- Is the current token's claims valid?
+
+The way we've looked to solve these issues are:
+
+- Short access token life, longer refresh token (standard) - this can be set through settings in `./django/app/settings.py`
+- Instead of blacklisting tokens (which is one way to revoke tokens), on refresh we check for:
+    - Whether the user exists / is marked as active in the DB.
+    - Whether the JWT claims for the user's role match the `user.profile.role` which is set in the DB.
+        - If either of these throw an exception, refresh endpoint will reply with a 401 (and the user should be redirected to login and obtain a new access / refresh token pair if their account is valid).
+
+You can find, change, or disable all of this logic in `./django/api/auth.py`
 
 ## Using Hasura's Permission Management
 You can customize permissions logic based on the `Permission` tab of any table in the schema builder / explorer http://localhost:8080/console/data/schema/public
@@ -194,3 +231,5 @@ When you're ready to export your metadata (all tracked tables, actions, events, 
 This will export your metadata information as YAML files to your `./hasura/metadata` directory.
 
 For more information on all the features of migrations - read the CLI docs over at: https://hasura.io/docs/1.0/graphql/core/hasura-cli/index.html
+
+![](https://www.google-analytics.com/collect?v=1&tid=UA-126656703-3&cid=555&aip=0&t=event&ec=github&ea=repo&dp=readme&dt=readme)
