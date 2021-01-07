@@ -41,12 +41,11 @@
                 }),
             });
             if (request.ok) {
-                console.log('> Create - Request Ok')
+                // console.log('> Create - Request Ok')
                 const response = await request.json();
                 if (response.tokens.access){
                     localStorage.setItem("token", response.tokens.access);
                     const tokenDecoded = jwt_decode(response.tokens.access);
-                    console.log(tokenDecoded)
                     localStorage.setItem("token_expiry", tokenDecoded.exp);
                     localStorage.setItem("user_name", tokenDecoded.user_name);
                     localStorage.setItem("user_email", tokenDecoded.user_email);
@@ -57,8 +56,7 @@
                     errorMessage = 'There was a problem with your request: Internal key error. Please try again.'
                 }
             } else {
-                console.log('> Create - Request Failed')
-                console.log(response)
+                // console.log('> Create - Request Failed')
                 errorMessage = 'There was a problem with your request: ' + request.statusText;
             }
         }
@@ -189,7 +187,7 @@
                             <p class="strong">Email</p>
                             <input class="w-100 mb-xs" bind:value={email} type="email" placeholder="Email..." />
                             <p class="strong">Password</p>
-                            <input class="w-100 mb-xs" on:input={passwordStrengthCheck} on:change={passwordStrengthCheck} bind:value={password} type="password" placeholder="Password..." />
+                            <input class="w-100 mb-xs" on:keyup={passwordStrengthCheck} on:change={passwordStrengthCheck} bind:value={password} type="password" placeholder="Password..." />
                             <p class="strong">Confirm Password</p>
                             <input class="w-100 mb-xs" bind:value={passwordConfirm} type="password" placeholder="Password..." />
 

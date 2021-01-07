@@ -112,7 +112,7 @@
                             <p class="strong">Email</p>
                             <input class="w-100 mb-xs" bind:value={email} placeholder="Email..." />
                             <p class="strong">Password</p>
-                            <input type="password" class="w-100 mb-xs" on:input={passwordStrengthCheck} on:change={passwordStrengthCheck} bind:value={password} placeholder="Password..." />
+                            <input type="password" class="w-100 mb-xs" on:keyup={passwordStrengthCheck} on:change={passwordStrengthCheck} bind:value={password} placeholder="Password..." />
                             <p class="strong">Confirm Password</p>
                             <input type="password" class="w-100 mb-xs" bind:value={passwordConfirm} placeholder="Confirm Password..." />
 

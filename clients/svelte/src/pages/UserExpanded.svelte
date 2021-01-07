@@ -61,7 +61,7 @@
             if (response.errors){
                 if(response.errors[0].extensions.code === 'invalid-jwt'){ 
                     await new Promise(r => setTimeout(r, 500));
-                    console.log('> Token Update / Reconnecting...');
+                    // console.log('> Token Update / Reconnecting...');
                     token();
                     getExpandedUser();
                 } else {
@@ -117,7 +117,7 @@
             if (response.errors){
                 if(response.errors[0].extensions.code === 'invalid-jwt'){ 
                     await new Promise(r => setTimeout(r, 500));
-                    console.log('> Token Update / Reconnecting...');
+                    // console.log('> Token Update / Reconnecting...');
                     token();
                     updateUserHandler();
                 } else {

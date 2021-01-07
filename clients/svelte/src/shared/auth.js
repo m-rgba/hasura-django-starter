@@ -7,13 +7,13 @@ export function token(redirect) {
     const refresh = Cookies.get('refresh');
     const accessToken = localStorage.getItem('token');
 
-    console.log('> token(); Triggered');
+    // console.log('> token(); Triggered');
     if (!accessToken){
         if (refresh){
-            console.log('> Refreshing Token');
+            // console.log('> Refreshing Token');
             tokenRefresh(redirect);
         } else {
-            console.log('> Handling No Token');
+            // console.log('> Handling No Token');
             noToken(redirect);
         }
     } else {
@@ -21,7 +21,7 @@ export function token(redirect) {
         const currentTime = Date.now();
         const currentTimeTrim = (currentTime-(currentTime%1000))/1000;
         if (currentTimeTrim >= accessExpiry) {
-            console.log('> Expired > Getting New Token')
+            // console.log('> Expired > Getting New Token')
             tokenRefresh();
         };
         authLoaded.set(true);
@@ -29,7 +29,7 @@ export function token(redirect) {
 }
 
 function noToken(redirect) {
-    console.log('> No Token Found');
+    // console.log('> No Token Found');
     authLoaded.set(true);
     if (redirect != false){
         location.replace("/login");
