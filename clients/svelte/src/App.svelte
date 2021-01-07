@@ -20,7 +20,7 @@
 	});
 	
 	let accessToken = localStorage.getItem('token');
-	console.log('> Mounted Main App')
+	// console.log('> Mounted Main App')
 </script>
 
 <Router>

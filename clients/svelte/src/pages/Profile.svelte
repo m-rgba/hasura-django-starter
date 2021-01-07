@@ -66,7 +66,7 @@
             if (response.errors){
                 if(response.errors[0].extensions.code === 'invalid-jwt'){ 
                     await new Promise(r => setTimeout(r, 500));
-                    console.log('> Token Update / Reconnecting...');
+                    // console.log('> Token Update / Reconnecting...');
                     token();
                     updateEmailHandler();
                 } else {
@@ -112,7 +112,7 @@
                 successMessage = 'Your password has been updated.';
             } else if(request.status===401) {
                 await new Promise(r => setTimeout(r, 500));
-                console.log('> Token Update / Reconnecting...');
+                // console.log('> Token Update / Reconnecting...');
                 token();
                 updatePasswordHandler();
             } else {
@@ -198,7 +198,7 @@
                             <p class="strong">Current Password</p>
                             <input type="password" class="w-100 mb-xs" bind:value={passwordOld} placeholder="Old Password..." />
                             <p class="strong">New Password</p>
-                            <input type="password" class="w-100 mb-xs" on:input={passwordStrengthCheck} on:change={passwordStrengthCheck} bind:value={password} placeholder="New Password..." />
+                            <input type="password" class="w-100 mb-xs" on:keyup={passwordStrengthCheck} on:change={passwordStrengthCheck} bind:value={password} placeholder="New Password..." />
                             <p class="strong">Confirm Password</p>
                             <input type="password" class="w-100 mb-xs" bind:value={passwordConfirm} placeholder="Confirm Password..." />
 

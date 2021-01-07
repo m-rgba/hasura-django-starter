@@ -36,14 +36,18 @@ Afterwards:
 - You can start creating / exposing tables to your API here: http://localhost:8080/console/data/schema/public
 - You can test with your GraphQL endpoint here: http://localhost:8080/v1/graphql
 
-## Client (Frontend) Startup
-## Svelte
-[ToDo] Write client docs.
+## Client Starter Project Sample
+Have a look at a sample client implementation which includes user authentication and management:
 
+![Client Demo](./readme-client-demo.gif)
+
+### Svelte-Based Sample
 From the project directory:
 ```
-docker-compose -f docker-compose.yml -f docker-compose-client-svelte.yml up
+docker-compose -f docker-compose-client-svelte.yml up
 ```
+
+You'll be able to access your sample app through: http://localhost:8088/
 
 -----
 
@@ -138,7 +142,7 @@ More information here: https://stackoverflow.com/questions/40619582/how-can-i-es
 ## Want to test these endpoints pre-development?
 From the project directory:
 ```
-docker-compose -f docker-compose.yml -f docker-compose-hoppscotch.yml up
+docker-compose -f docker-compose-hoppscotch.yml up
 ```
 
 In `docker-compose.yml` if you uncomment the `Hoppscotch` service it will serve a request builder at http://localhost:3000.
