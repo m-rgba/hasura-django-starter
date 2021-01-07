@@ -1,16 +1,12 @@
 <script>
-    import { onMount } from "svelte";
-    import { navigate } from "svelte-routing";
+    import { authLoaded } from '../stores/auth.js'
+
     import Cookies from 'js-cookie'
-    import { authToken } from '../stores/auth.js'
+    import jwt_decode from "jwt-decode";
 
-    // let urlParams = new URLSearchParams(window.location.search);
-
-    // Components
     import Header from "../components/Header.svelte"
     import Footer from "../components/Footer.svelte"
 
-    // Vars
     let authType = "Login";
     let successMessage;
     let errorMessage;
@@ -25,11 +21,6 @@
     let checkpassNumber;
     let checkpassSpecial;
     let checkPass;
-
-    onMount(() => {
-        // console.log($authToken)
-        // console.log(Cookies.get('refresh'));
-    });
 
     async function signupHandler() {
         if (password != passwordConfirm) {
@@ -50,21 +41,25 @@
                 }),
             });
             if (request.ok) {
+                console.log('> Create - Request Ok')
                 const response = await request.json();
                 if (response.tokens.access){
-                    $authToken = response.tokens.access;
-                    Cookies.set('refresh', response.tokens.refresh);
-                    navigate("/", { replace: true });
+                    localStorage.setItem("token", response.tokens.access);
+                    const tokenDecoded = jwt_decode(response.tokens.access);
+                    console.log(tokenDecoded)
+                    localStorage.setItem("token_expiry", tokenDecoded.exp);
+                    localStorage.setItem("user_name", tokenDecoded.user_name);
+                    localStorage.setItem("user_email", tokenDecoded.user_email);
+                    localStorage.setItem("user_role", tokenDecoded["https://hasura.io/jwt/claims"]["x-hasura-default-role"]);
+                    Cookies.set('refresh', response.tokens.refresh, { sameSite: 'strict' });
+                    location.replace("/");
                 } else {
                     errorMessage = 'There was a problem with your request: Internal key error. Please try again.'
                 }
             } else {
-                try{
-                    const response = await request.json();
-                    errorMessage = response.username[0];
-                } catch {
-                    errorMessage = 'There was a problem with your request: ' + request.statusText;
-                }
+                console.log('> Create - Request Failed')
+                console.log(response)
+                errorMessage = 'There was a problem with your request: ' + request.statusText;
             }
         }
     }
@@ -112,9 +107,14 @@
         if (request.ok) {
             const response = await request.json();
             if (response.access){
-                $authToken = response.access;
-                Cookies.set('refresh', response.refresh);
-                navigate("/", { replace: true });
+                localStorage.setItem("token", response.access);
+                const tokenDecoded = jwt_decode(response.access);
+                localStorage.setItem("token_expiry", tokenDecoded.exp);
+                localStorage.setItem("user_name", tokenDecoded.user_name);
+                localStorage.setItem("user_email", tokenDecoded.user_email);
+                localStorage.setItem("user_role", tokenDecoded["https://hasura.io/jwt/claims"]["x-hasura-default-role"]);
+                Cookies.set('refresh', response.refresh, { sameSite: 'strict' });
+                location.replace("/");
             } else {
                 errorMessage = 'There was a problem with your request: Internal key error. Please try again.'
             }

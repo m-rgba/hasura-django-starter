@@ -37,7 +37,6 @@ hr{
 }
 
 h1,h2,h3.h4{
-    font-family: 'Metrophobic', sans-serif;
     font-weight: 600;
     line-height: 1;
     letter-spacing:-0.5px;
@@ -85,22 +84,25 @@ table > thead > tr > th{
 }
 
 /* Forms */
-.card * input{
+.card * input, .card * select{
     padding: 8px;
     border-radius:4px;
     background: #F9FAFB;
     border:1px solid #D1D5DB;
     transition: all 0.2s ease-in-out;
 }
-.card * input:hover{
+.card * select{
+    padding: 7px 5px;
+}
+.card * input:hover, .card * select:hover{
     border:1px solid #9CA3AF;
 }
-.card * input:focus{
+.card * input:focus, .card * select:focus{
     outline:0;
     border:1px solid #2563EB;
     box-shadow: rgba(37, 99, 235, 0.2) 0px 0px 0px 3px;
 }
-input:disabled, input:disabled:hover{
+input:disabled, input:disabled:hover, .card * select:disabled, select:disabled:hover{
     opacity:0.5;
     cursor: not-allowed;
     border:1px solid #D1D5DB;
@@ -144,6 +146,23 @@ button.sm{
 button.sm > ion-icon{
     vertical-align: -3px;
 }
+
+/* Badges */
+.badge {
+    font-size:12px;
+    padding: 4px 8px;
+    font-weight: 600;
+    border-radius: 16px;
+}
+.badge.positive {
+    background: #D1FAE5;
+    color: #059669;
+}
+.badge.negative {
+    background: #FEE2E2;
+    color: #DC2626;
+}
+
 
 /* Utility */
 .hidden{

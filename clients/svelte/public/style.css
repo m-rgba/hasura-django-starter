@@ -56,11 +56,11 @@ footer{
     width:32px;
 }
 
-tr > td.actions > a{
+tr > td.actions > a, tr > td.actions > button{
     opacity: 0;
     transition: all 0.2s ease-in-out;
 }
-tr:hover > td.actions > a{
+tr:hover > td.actions > a, tr:hover > td.actions > button{
     opacity: 1;
 }
 
