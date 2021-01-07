@@ -26,7 +26,7 @@ Running these 3 commands will get your project up and running (as long as you ha
 For Docker installation - see here: https://docs.docker.com/get-docker/
 
 ```
-git clone https://github.com/mrtnmark/hasura-django-starter.git && cd ./hasura-django-starter && docker-compose up
+git clone https://github.com/mm-io/hasura-django-starter.git && cd ./hasura-django-starter && docker-compose up
 ```
 
 ***Already cloned the repo?*** Just run `docker-compose up` from the project directory.
