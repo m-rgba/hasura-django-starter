@@ -42,7 +42,7 @@ Have a look at a sample client implementation which includes user authentication
 ![Client Demo](./readme-client-demo.gif)
 
 ### Svelte-Based Sample
-From the project directory:
+From the project directory, after starting the above containers:
 ```
 docker-compose -f docker-compose-client-svelte.yml up
 ```

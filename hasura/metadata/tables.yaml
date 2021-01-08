@@ -82,3 +82,6 @@
       - updated_at
       - created_by
       filter: {}
+- table:
+    schema: public
+    name: public_posts_count

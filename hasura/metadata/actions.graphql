@@ -1,0 +1,13 @@
+type Mutation {
+  action_sample (
+    food: String!
+  ): sampleOutput
+}
+
+
+
+
+type sampleOutput {
+  hotdog : Boolean!
+}
+

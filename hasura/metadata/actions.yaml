@@ -4,8 +4,6 @@ actions:
     kind: synchronous
     handler: http://hds-django:8000/api/logic/hotdog/
     forward_client_headers: true
-  permissions:
-  - role: user
 custom_types:
   enums: []
   input_objects: []
