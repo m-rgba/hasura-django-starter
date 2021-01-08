@@ -2,12 +2,11 @@
     import { onMount } from "svelte";
     import { link } from "svelte-routing";
     import { token } from '../shared/auth.js'
+    import { restResponseHandler, gqlResponseHandler } from '../shared/requests.js'
 
     // Components
     import Header from "../components/Header.svelte"
     import Footer from "../components/Footer.svelte"
-
-    let pageRetry = 1;
 
     let successMessage;
     let errorMessage;
@@ -24,103 +23,7 @@
     let checkpassUpper;
     let checkpassNumber;
     let checkpassSpecial;
-    let checkPass;
-
-    let updateEmailVariables = {};
-
-    async function updateEmailHandler() {
-        const accessToken = localStorage.getItem('token');
-        pageRetry = pageRetry + 1;
-        if (pageRetry >= 15){
-            errorMessage = 'Wasn\'t able to reconnect. Please refresh and try again.';
-            throw 'JWT Refresh Error';
-        }
-
-        const query = `
-            mutation updateProfileEmail($username: String!, $newEmail: String!) {
-                update_auth_user(where: {username: {_eq: $username}}, _set: {email: $newEmail}) {
-                    returning {
-                    username
-                    }
-                }
-            }
-        `;
-
-        updateEmailVariables["username"] = username;
-        updateEmailVariables["newEmail"] = newEmail;
-
-        const request = await fetch("http://localhost:8080/v1/graphql", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: "Bearer " + accessToken,
-            },
-            body: JSON.stringify({
-                query: query,
-                variables: updateEmailVariables
-            })
-        });
-        if (request.ok) {
-            const response = await request.json();
-            if (response.errors){
-                if(response.errors[0].extensions.code === 'invalid-jwt'){ 
-                    await new Promise(r => setTimeout(r, 500));
-                    // console.log('> Token Update / Reconnecting...');
-                    token();
-                    updateEmailHandler();
-                } else {
-                    errorMessage = response.errors[0].message;
-                }
-            } else {
-                pageRetry = 1;
-                email = newEmail;
-                localStorage.setItem("user_email", newEmail);
-                successMessage = 'Your profile\'s email has been updated.';
-            }
-        } else {
-            errorMessage = 'There was a problem with your request: ' + request.statusText;
-        }
-    }
-
-    async function updatePasswordHandler() {
-        const accessToken = localStorage.getItem('token');
-        pageRetry = pageRetry + 1;
-        if (pageRetry >= 15){
-            errorMessage = 'Wasn\'t able to reconnect. Please refresh and try again.';
-            throw 'JWT Refresh Error';
-        }
-        if (password != passwordConfirm) {
-            errorMessage = "Your passwords must match. Please enter a matching Password and Confirm Password combination.";
-        } else if ( checkPass === false ){
-            errorMessage = "Your passwords must be a strong password. It must contain at least one lowercase character, uppercase character, special character, and number.";
-        } else {
-            const request = await fetch("http://localhost:8000/api/user/change_password/", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                    Authorization: "Bearer " + accessToken
-                },
-                body: JSON.stringify({ 
-                    "old_password" : passwordOld,
-                    "new_password" : password
-                }),
-            });
-            if (request.ok) {
-                pageRetry = 1;
-                successMessage = 'Your password has been updated.';
-            } else if(request.status===401) {
-                await new Promise(r => setTimeout(r, 500));
-                // console.log('> Token Update / Reconnecting...');
-                token();
-                updatePasswordHandler();
-            } else {
-                errorMessage = 'There seems to be a problem with your request. Please ensure that your old password is correct.' + request.statusText;
-            }
-        }
-    }
-
+    let passCheck;
     function passwordStrengthCheck() {
         if (password.match(/[a-z]+/)){
             checkpassLower = true;
@@ -143,9 +46,64 @@
             checkpassSpecial = false;
         }
         if ((checkpassLower === true) && (checkpassUpper === true) && (checkpassNumber === true) && (checkpassSpecial === true)){
-            checkPass = true; 
+            passCheck = true;
+        }
+    }
+
+    async function updateEmailHandler() {
+        const variable = {};
+        const query = `
+            mutation updateProfileEmail($username: String!, $newEmail: String!) {
+                update_auth_user(where: {username: {_eq: $username}}, _set: {email: $newEmail}) {
+                    returning {
+                    username
+                    }
+                }
+            }
+        `;
+        variable["username"] = username;
+        variable["newEmail"] = newEmail;
+        const accessToken = await token();
+        const request = await fetch("http://localhost:8080/v1/graphql", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },
+            body: JSON.stringify({ query: query, variables: variable })
+        });
+        const updateEmail = await gqlResponseHandler(request);
+        if (updateEmail.success === true){
+            email = newEmail;
+            localStorage.setItem("user_email", newEmail);
+            successMessage = 'Your profile\'s email has been updated.';
         } else {
-            checkPass = false; 
+            errorMessage = updateEmail.response;
+        }  
+    };
+
+    async function updatePasswordHandler() {
+        if (password != passwordConfirm) {
+            errorMessage = "Your passwords must match. Please enter a matching Password and Confirm Password combination.";
+        } else if (passCheck != true){
+            errorMessage = "Your passwords must be a strong password. It must contain at least one lowercase character, uppercase character, special character, and number.";
+        } else {
+            const accessToken = await token();
+            const request = await fetch("http://localhost:8000/api/user/change_password/", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                    Authorization: "Bearer " + accessToken
+                },
+                body: JSON.stringify({ 
+                    "old_password" : passwordOld,
+                    "new_password" : password
+                }),
+            });
+            const updatePassword = await restResponseHandler(request);
+            if (updatePassword.success === true){
+                successMessage =  'Your password has been updated.';
+            } else {
+                errorMessage = 'There seems to be a problem with your request. Please ensure that your old password is correct. ' + updatePassword.response;
+            }  
         }
     }
 </script>

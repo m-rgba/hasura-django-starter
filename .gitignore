@@ -9,11 +9,11 @@ dist/
 docs/_build/
 docs/locale/
 node_modules/
+*package-lock.json
 tests/coverage_html/
 tests/.coverage
 build/
 tests/report/
-package-lock.json
 /.pnp
 .pnp.js
 django/static/*

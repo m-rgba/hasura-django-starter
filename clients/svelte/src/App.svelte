@@ -3,6 +3,7 @@
 	import { Router, Route } from "svelte-routing";
 	import { authLoaded } from './stores/auth.js'
 	import { token } from './shared/auth.js'
+    import { gqlResponseHandler } from './shared/requests.js'
 
 	import Redirect from "./components/Redirect.svelte";
 
@@ -17,9 +18,43 @@
 
     onMount(() => {
 		token(false);
+		updateLastLoginDate();
 	});
-	
+
 	let accessToken = localStorage.getItem('token');
+
+    async function updateLastLoginDate() {
+        let username = localStorage.getItem('user_name');
+		if ( username ){
+			const variable = {};
+			const query = `
+				mutation updateProfileEmail($username: String!, $lastLogin: timestamptz!) {
+					update_auth_user(where: {username: {_eq: $username}}, _set: {last_login: $lastLogin}) {
+						returning {
+							username
+						}
+					}
+				}
+			`;
+			variable["lastLogin"] = new Date().toISOString();
+            variable["username"] = username;
+            const accessToken = await token();
+			const request = await fetch("http://localhost:8080/v1/graphql", {
+				method: "POST",
+				headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },
+				body: JSON.stringify({ query: query, variables: variable })
+			});
+			const updateLastLogin = await gqlResponseHandler(request);
+			if (updateLastLogin.success === true){
+                // console.log('> Last login > Updated');
+			} else {
+				// console.log('> Last login > Failed');
+			}
+		} else {
+            // console.log('> Last login > Cancelled');
+        }
+    };
+
 	// console.log('> Mounted Main App')
 </script>
 

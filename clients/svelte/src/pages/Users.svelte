@@ -2,10 +2,23 @@
     import { onMount } from "svelte";
     import { link } from "svelte-routing";
     import { token } from '../shared/auth.js'
+    import { gqlResponseHandler } from '../shared/requests.js'
 
     // Components
     import Header from "../components/Header.svelte"
     import Footer from "../components/Footer.svelte"
+
+    let urlParams = new URLSearchParams(window.location.search);
+    let userCreated = urlParams.get("created") == "true";
+    let userUpdated = urlParams.get("updated") == "true";
+
+    let successMessage;
+    let errorMessage;
+
+    let searchQuery;
+    let users;
+    let usersReady;
+    let userRole = localStorage.getItem("user_role");
 
     onMount(() => {
         if (userRole === 'admin'){
@@ -13,40 +26,17 @@
         }
         getQueryMsgs();
     });
-    let pageRetry = 1;
-
-    // Check QueryStrings from Alert
-    let urlParams = new URLSearchParams(window.location.search);
-    let userCreated = urlParams.get("created") == "true";
-
-    let successMessage;
-    let errorMessage;
-
-    let users;
-    let usersReady;
-
-    let userRole = localStorage.getItem("user_role");
-
-    let searchQuery;
-
-    let searchVariables = {};
-    let userStatusVariables = {};
 
     async function getQueryMsgs() {
         if(userCreated === true) {
-            successMessage = "A new user has been created."
+            successMessage = "A new user has been successfully created."
+        } else if(userUpdated === true) {
+            successMessage = "A user has been successfully updated."
         }
     }
 
-    // TODO: Getting a little lazy here > just running getUsers again vs updating the affected records only which can be returned via this query.
     async function userStatusChange(statusType, id) {
-        pageRetry = pageRetry + 1;
-        if (pageRetry >= 15){
-            errorMessage = 'Wasn\'t able to reconnect. Please refresh and try again.';
-            throw 'JWT Refresh Error';
-        }
-
-        const accessToken = localStorage.getItem('token');
+        const variable = {};
         const query = `
             mutation updateUserStatus($userID: Int!, $statusType: Boolean!) {
                     update_auth_user(where: {id: {_eq: $userID}}, _set: {is_active: $statusType}) {
@@ -56,56 +46,25 @@
                     }
                 }
         `;
-
-        userStatusVariables["statusType"] = statusType;
-        userStatusVariables["userID"] = id;
-
+        variable["statusType"] = statusType;
+        variable["userID"] = id;
+        const accessToken = await token();
         const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: "Bearer " + accessToken,
-            },
-            body: JSON.stringify({
-                query: query,
-                variables: userStatusVariables
-            })
+            headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },
+            body: JSON.stringify({ query: query, variables: variable })
         });
-        if (request.ok) {
-            const response = await request.json();
-            if (response.errors){
-                if(response.errors[0].extensions.code === 'invalid-jwt'){ 
-                    await new Promise(r => setTimeout(r, 500));
-                    // console.log('> Token Update / Reconnecting...');
-                    token();
-                    userStatusChange(statusType, id);
-                } else {
-                    errorMessage = response.errors[0].message;
-                }
-            } else {
-                const userUpdated = response.data.update_auth_user.returning[0].username;
-                if (statusType === true){
-                    successMessage = userUpdated + '\'s profile has been enabled.'
-                } else {
-                    successMessage = userUpdated + '\'s profile has been disabled.'
-                }
-                getUsers();
-                pageRetry = 1;
-            }
+        const userChange = await gqlResponseHandler(request);
+        if (userChange.success === true){
+            successMessage = 'Account status has been updated.'
+            getUsers();
         } else {
-            errorMessage = 'There was a problem with your request: ' + request.statusText;
-        }
-        await new Promise(r => setTimeout(r, 500));
-    }
+            errorMessage = userChange.response;
+        }  
+    };
 
     async function getUsers() {
-        pageRetry = pageRetry + 1;
-        if (pageRetry >= 15){
-            errorMessage = 'Wasn\'t able to reconnect. Please refresh and try again.';
-            throw 'JWT Refresh Error';
-        }
-        const accessToken = localStorage.getItem('token');
+        const variable = {};
         const query = `
             query allUsers($searchQuery: String) {
                 auth_user(where: {_or: [{username: {_ilike: $searchQuery}}, {email: {_ilike: $searchQuery}}]}) {
@@ -120,44 +79,21 @@
                 }
             }
         `;
-        if (searchQuery === ''){
-            searchVariables["searchQuery"] = null;
-        } else {
-            searchVariables["searchQuery"] = searchQuery;
-        }
-
+        if (searchQuery === ''){ variable["searchQuery"] = null; } else { variable["searchQuery"] = searchQuery; }
+        const accessToken = await token();
         const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: "Bearer " + accessToken,
-            },
-            body: JSON.stringify({
-                query: query,
-                variables: searchVariables
-            })
+            headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },
+            body: JSON.stringify({ query: query, variables: variable })
         });
-        if (request.ok) {
-            const response = await request.json();
-            if (response.errors){
-                if(response.errors[0].extensions.code === 'invalid-jwt'){ 
-                    await new Promise(r => setTimeout(r, 500));
-                    // console.log('> Token Update / Reconnecting...');
-                    token();
-                    getUsers();
-                } else {
-                    errorMessage = response.errors[0].message;
-                }
-            } else {
-                users = response.data.auth_user;
-                usersReady = 1;
-                pageRetry = 1;
-            }
+        const userList = await gqlResponseHandler(request);
+        if (userList.success === true){
+            users = userList.response.auth_user;
+            usersReady = 1;
         } else {
-            errorMessage = 'There was a problem with your request: ' + request.statusText;
+            errorMessage = userList.response;
         }
-    }
+    };
 </script>
 
 <Header />
@@ -184,24 +120,26 @@
                 <h1>Users</h1>
             </div>
             <div class="col-12">
-                    <div class="card">
-                        {#if userRole === "admin"}
+                    {#if userRole !== "admin"}
+                        Sign into Hasura (<a target="_new" href="http://localhost:8080/console/data/schema/public">http://localhost:8080/console/data/schema/public</a>) and set your user profile status as admin (through the <strong>api_profile table</strong>).
+                    {/if}
+
+                    {#if userRole === "admin"}
+                        <div class="card">
                             <div class="pad flex-center">
                                 <a use:link href="/user/create"><button class="primary" style="">Create User</button></a>
                                 <input style="width:240px; margin-left:auto;" class="mr-xxs" bind:value={searchQuery} placeholder="Search..." /> <button on:click="{getUsers}">Search</button>
                             </div>
-                        {/if}
 
-                        <style>
-                            .tbl-inspect{
-                                width:32px;
-                            }
-                            .tbl-disable{
-                                width:98px;
-                            }
-                        </style>
+                            <style>
+                                .tbl-inspect{
+                                    width:32px;
+                                }
+                                .tbl-disable{
+                                    width:98px;
+                                }
+                            </style>
 
-                        {#if userRole === "admin"}
                             <table>
                                 <thead>
                                     <tr>
@@ -238,11 +176,10 @@
                                         {/each}
                                     {/if}
                                 </tbody>
-                            </table>
-                        {:else}
-                            <div class="pad">Sign into Hasura (http://localhost:8080/console/data/schema/public) and set your user profile status as admin (through the api_profile table).</div>
-                        {/if}
-                    </div>
+                            </table>    
+                        </div>
+                    {/if}
+
             </div>
         </div>
     </div>

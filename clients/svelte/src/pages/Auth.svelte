@@ -1,5 +1,6 @@
 <script>
     import { authLoaded } from '../stores/auth.js'
+    import { restResponseHandler } from '../shared/requests.js'
 
     import Cookies from 'js-cookie'
     import jwt_decode from "jwt-decode";
@@ -20,48 +21,7 @@
     let checkpassUpper;
     let checkpassNumber;
     let checkpassSpecial;
-    let checkPass;
-
-    async function signupHandler() {
-        if (password != passwordConfirm) {
-            errorMessage = "Your passwords must match. Please enter a matching Password and Confirm Password combination.";
-        } else if ( checkPass === false ){
-            errorMessage = "Your passwords must be a strong password. It must contain at least one lowercase character, uppercase character, special character, and number.";
-        } else {
-            const request = await fetch("http://localhost:8000/api/user/register/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify({ 
-                    "username" : username, 
-                    "email" : email,
-                    "password" : password 
-                }),
-            });
-            if (request.ok) {
-                // console.log('> Create - Request Ok')
-                const response = await request.json();
-                if (response.tokens.access){
-                    localStorage.setItem("token", response.tokens.access);
-                    const tokenDecoded = jwt_decode(response.tokens.access);
-                    localStorage.setItem("token_expiry", tokenDecoded.exp);
-                    localStorage.setItem("user_name", tokenDecoded.user_name);
-                    localStorage.setItem("user_email", tokenDecoded.user_email);
-                    localStorage.setItem("user_role", tokenDecoded["https://hasura.io/jwt/claims"]["x-hasura-default-role"]);
-                    Cookies.set('refresh', response.tokens.refresh, { sameSite: 'strict' });
-                    location.replace("/");
-                } else {
-                    errorMessage = 'There was a problem with your request: Internal key error. Please try again.'
-                }
-            } else {
-                // console.log('> Create - Request Failed')
-                errorMessage = 'There was a problem with your request: ' + request.statusText;
-            }
-        }
-    }
-
+    let passCheck;
     function passwordStrengthCheck() {
         if (password.match(/[a-z]+/)){
             checkpassLower = true;
@@ -84,9 +44,42 @@
             checkpassSpecial = false;
         }
         if ((checkpassLower === true) && (checkpassUpper === true) && (checkpassNumber === true) && (checkpassSpecial === true)){
-            checkPass = true; 
+            passCheck = true;
+        }
+    }
+
+    async function signupHandler() {
+        if (password != passwordConfirm) {
+            errorMessage = "Your passwords must match. Please enter a matching Password and Confirm Password combination.";
+        } else if ( passCheck !== true ){
+            errorMessage = "Your passwords must be a strong password. It must contain at least one lowercase character, uppercase character, special character, and number.";
         } else {
-            checkPass = false; 
+            const request = await fetch("http://localhost:8000/api/user/register/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({ 
+                    "username" : username, 
+                    "email" : email,
+                    "password" : password 
+                }),
+            });
+            const signUpUser = await restResponseHandler(request);
+            if (signUpUser.success === true){
+                    localStorage.setItem("token", signUpUser.response.tokens.access);
+                    const tokenDecoded = jwt_decode(signUpUser.response.tokens.access);
+                    // We're only storing JWT items for ease of use > the backend will validate all items in queries
+                    localStorage.setItem("token_expiry", tokenDecoded.exp);
+                    localStorage.setItem("user_name", tokenDecoded.user_name);
+                    localStorage.setItem("user_email", tokenDecoded.user_email);
+                    localStorage.setItem("user_role", tokenDecoded["https://hasura.io/jwt/claims"]["x-hasura-default-role"]);
+                    Cookies.set('refresh', signUpUser.response.tokens.refresh, { sameSite: 'strict' });
+                    location.replace("/");
+            } else {
+                errorMessage = signUpUser.response;
+            }
         }
     }
 
@@ -102,22 +95,19 @@
                 "password" : password 
             }),
         });
-        if (request.ok) {
-            const response = await request.json();
-            if (response.access){
-                localStorage.setItem("token", response.access);
-                const tokenDecoded = jwt_decode(response.access);
+        const loginUser = await restResponseHandler(request);
+        if (loginUser.success === true){
+                localStorage.setItem("token", loginUser.response.access);
+                const tokenDecoded = jwt_decode(loginUser.response.access);
+                // We're only storing JWT items for ease of use > the backend will validate all items in queries
                 localStorage.setItem("token_expiry", tokenDecoded.exp);
                 localStorage.setItem("user_name", tokenDecoded.user_name);
                 localStorage.setItem("user_email", tokenDecoded.user_email);
                 localStorage.setItem("user_role", tokenDecoded["https://hasura.io/jwt/claims"]["x-hasura-default-role"]);
-                Cookies.set('refresh', response.refresh, { sameSite: 'strict' });
+                Cookies.set('refresh', loginUser.response.refresh, { sameSite: 'strict' });
                 location.replace("/");
-            } else {
-                errorMessage = 'There was a problem with your request: Internal key error. Please try again.'
-            }
         } else {
-            errorMessage = 'There was a problem with your request: ' + request.statusText;
+            errorMessage = loginUser.response;
         }
     }
 

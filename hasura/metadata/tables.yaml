@@ -32,6 +32,18 @@
         table:
           schema: public
           name: public_posts
+  update_permissions:
+  - role: user
+    permission:
+      columns:
+      - email
+      - first_name
+      - last_login
+      - last_name
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      check: null
   event_triggers:
   - name: new_registration_email
     definition:
