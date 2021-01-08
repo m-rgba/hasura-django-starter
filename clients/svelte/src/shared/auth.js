@@ -53,8 +53,12 @@ function clearTokens(redirect) {
     // Clear everything > go to login
     localStorage.setItem("token", "");
     Cookies.set('refresh', "", { sameSite: 'strict' })
+    localStorage.setItem("token_expiry", "");
+    localStorage.setItem("user_name", "");
+    localStorage.setItem("user_email", "");
+    localStorage.setItem("user_role", "");
     authLoaded.set(true);
     if (redirect != false){
-        location.replace("/login");
+        location.replace("/");
     };
 };

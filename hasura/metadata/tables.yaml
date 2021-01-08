@@ -57,6 +57,9 @@
     webhook: http://hds-django:8000/api/logic/new_registration_email/
 - table:
     schema: public
+    name: demo_realtime
+- table:
+    schema: public
     name: django_rest_passwordreset_resetpasswordtoken
   object_relationships:
   - name: auth_user

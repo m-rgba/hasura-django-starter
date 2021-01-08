@@ -174,6 +174,53 @@
                                                 {/if}
                                             </tr>
                                         {/each}
+                                    {:else}
+                                        <!-- Table Placeholders -->
+                                        <tr>
+                                            <td class="actions tbl-inspect">
+                                            </td>
+                                            <td><span class="placeholder">***********</span></td>
+                                            <td><span class="placeholder">***************</span></td>
+                                            <td><span class="placeholder">*********</span></td>
+                                            <td><span class="placeholder">***********</span></td>
+                                            <td class="actions tbl-disable"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="actions tbl-inspect">
+                                            </td>
+                                            <td><span class="placeholder">***********</span></td>
+                                            <td><span class="placeholder">***************</span></td>
+                                            <td><span class="placeholder">*********</span></td>
+                                            <td><span class="placeholder">***********</span></td>
+                                            <td class="actions tbl-disable"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="actions tbl-inspect">
+                                            </td>
+                                            <td><span class="placeholder">***********</span></td>
+                                            <td><span class="placeholder">***************</span></td>
+                                            <td><span class="placeholder">*********</span></td>
+                                            <td><span class="placeholder">***********</span></td>
+                                            <td class="actions tbl-disable"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="actions tbl-inspect">
+                                            </td>
+                                            <td><span class="placeholder">***********</span></td>
+                                            <td><span class="placeholder">***************</span></td>
+                                            <td><span class="placeholder">*********</span></td>
+                                            <td><span class="placeholder">***********</span></td>
+                                            <td class="actions tbl-disable"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="actions tbl-inspect">
+                                            </td>
+                                            <td><span class="placeholder">***********</span></td>
+                                            <td><span class="placeholder">***************</span></td>
+                                            <td><span class="placeholder">*********</span></td>
+                                            <td><span class="placeholder">***********</span></td>
+                                            <td class="actions tbl-disable"></td>
+                                        </tr>
                                     {/if}
                                 </tbody>
                             </table>    

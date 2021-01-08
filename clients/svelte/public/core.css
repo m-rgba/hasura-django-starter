@@ -84,28 +84,34 @@ table > thead > tr > th{
 }
 
 /* Forms */
-.card * input, .card * select{
+.card * input, .card * .input, .card * select, .card > .input, .card > input, .card > select{
     padding: 8px;
     border-radius:4px;
     background: #F9FAFB;
     border:1px solid #D1D5DB;
     transition: all 0.2s ease-in-out;
 }
-.card * select{
+.card * select, .card > select{
     padding: 7px 5px;
 }
-.card * input:hover, .card * select:hover{
+.card * input:hover, .card * .input:hover, .card * select:hover, .card > input:hover, .card > .input:hover, .card > select:hover{
     border:1px solid #9CA3AF;
 }
-.card * input:focus, .card * select:focus{
+.card * input:focus, .card * .input:focus, .card * select:focus, .card > input:focus, .card > .input:focus, .card > select:focus{
     outline:0;
     border:1px solid #2563EB;
     box-shadow: rgba(37, 99, 235, 0.2) 0px 0px 0px 3px;
 }
-input:disabled, input:disabled:hover, .card * select:disabled, select:disabled:hover{
+input:disabled, .input:disabled, .input:disabled:hover, input:disabled:hover, .card * select:disabled, .card > select:disabled, select:disabled:hover{
     opacity:0.5;
     cursor: not-allowed;
     border:1px solid #D1D5DB;
+}
+div[contenteditable=true]:empty:before{
+    content: attr(placeholder);
+    color: rgba(55,65,81,0.7);
+    pointer-events: none;
+    display: block; /* For Firefox */
 }
 
 /* Buttons */
@@ -196,11 +202,17 @@ button.sm > ion-icon{
 
 .placeholder{
     color: transparent;
-    background: #E5E7EB;
+    background: #F9FAFB;
     border-radius:4px;
 }
 
+
+
 /* Spacing */
+.pull-right{
+    float:right;
+}
+
 .pad{
     padding: 8px;
 }
@@ -317,6 +329,15 @@ button.sm > ion-icon{
 }
 
 @media (max-width: 768px) {
+    .xs-center{
+        text-align:center;
+    }
+    .xs-mb-xs{
+        margin-bottom:8px;
+    }
+    .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12{
+        width:100%;
+    }    
     .col-xs-12{
         width:100%;
     }
