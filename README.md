@@ -9,8 +9,8 @@ The best of Hasura's instant, realtime GraphQL API meshed with Django's built-in
 ### Hasura
 - Auto-generate GraphQL API for any Postgres database.
 - Database management UI.
-- Permissions management system (based on Postgres row-level permissions).
-- Events (with sample events for sending registration and forgot password emails triggers from Hasura to Django).
+- Row-level permissions management system.
+- Events (with samples for sending new user and forgot password emails triggered from Hasura through Django).
 - Action (with a sample action for demo-ing more advanced non-CRUD logic between Hasura and Django).
 - Database / metadata migrations (and container auto-apply).
 
@@ -18,7 +18,7 @@ The best of Hasura's instant, realtime GraphQL API meshed with Django's built-in
 - Registration, login, and password reset auth-flows (REST-based).
 - JWT tokens (Simple-JWT), with custom Hasura claims by way of Django's built-in auth-layer.
 - Extended user model (added role, registration, UUID, registration_sent > flag for new user emails).
-- Ability to extend Hasura's logic through endpoints (+ getting auth-only endpoints for **free**).
+- Ability to extend Hasura's logic through endpoints (+ getting auth-only endpoints for **free*).
 - Django-specific database migrations and container auto-apply (user model).
 
 ## Get Started
@@ -36,12 +36,16 @@ Afterwards:
 - You can start creating / exposing tables to your API here: http://localhost:8080/console/data/schema/public
 - You can test with your GraphQL endpoint here: http://localhost:8080/v1/graphql
 
-## Client Starter Project Sample
-Have a look at a sample client implementation which includes user authentication and management:
+## Client Sample Starter (Svelte)
 
 ![Client Demo](./readme-client-demo.gif)
 
-### Svelte-Based Sample
+A sample client application which helps illustrate everything tied together:
+- User management and standard authentication (**note**: SMTP emails need to be setup through Django for Forgot Password - read below about where to find the boilerplate for creating emails).
+- Example usage of the REST endpoints listed below.
+- Query and mutation GraphQL samples (verbose, no client magic - using Fetch).
+- Subscriptions to demonstrate Hasura's realtime API (more magical - using Svelte-Apollo).
+
 From the project directory, after starting the above containers:
 ```
 docker-compose -f docker-compose-client-svelte.yml up
@@ -151,8 +155,24 @@ I would also recommend Postman (paid) or Insomnia (OSS).
 
 
 -----
+Aside from the data views Hasura provides through GraphQL from our database's tables, how else can we get views of our data?
 
-## Using Hasura + Django to Handle Advanced Business Logic
+## Using Hasura for Business Logic (SQL)
+Hasura provides the ability to write raw SQL (through: http://localhost:8080/console/data/sql), and then track and expose Views and Functions to your GraphQL API.
+
+Most Views and Functions (Stored Procedures) are compatible with Hasura, see the following documentation for more information, examples and formatting:
+
+https://hasura.io/docs/1.0/graphql/core/schema/views.html
+
+https://hasura.io/docs/1.0/graphql/core/schema/custom-functions.html
+
+### Views
+We've provided a sample `demo_public_posts_count` SQL View which counts posts by user.
+
+### Functions (Stored Procedures)
+We've also provided a sample `demo_public_posts_search` SQL Function which provides a node for searching multiple columns the `demo_public_posts` table.
+
+## Using Hasura + Django to Handle Advanced Business Logic (Python)
 This project makes use of 2 of Hasura's methods for extending it's generate CRUD API.
 
 ### Events
