@@ -4,6 +4,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
+import replace from '@rollup/plugin-replace';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -57,6 +58,8 @@ export default {
 			dedupe: ['svelte']
 		}),
 		commonjs(),
+
+		production ? replace({ 'process.env.NODE_ENV': JSON.stringify('production') }) : replace({ 'process.env.NODE_ENV': JSON.stringify('development') }),
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated

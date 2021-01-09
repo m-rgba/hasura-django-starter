@@ -21,7 +21,7 @@
     let userRole = localStorage.getItem("user_role");
 
     onMount(() => {
-        if (userRole === 'admin'){
+        if (userRole === 'admin' || userRole === 'manager'){
             getUsers();
         }
         getQueryMsgs();
@@ -120,11 +120,7 @@
                 <h1>Users</h1>
             </div>
             <div class="col-12">
-                    {#if userRole !== "admin"}
-                        Sign into Hasura (<a target="_new" href="http://localhost:8080/console/data/schema/public">http://localhost:8080/console/data/schema/public</a>) and set your user profile status as admin (through the <strong>api_profile table</strong>).
-                    {/if}
-
-                    {#if userRole === "admin"}
+                    {#if userRole === "admin" || userRole === "manager"}
                         <div class="card">
                             <div class="pad flex-center">
                                 <a use:link href="/user/create"><button class="primary" style="">Create User</button></a>
@@ -225,6 +221,8 @@
                                 </tbody>
                             </table>    
                         </div>
+                    {:else}
+                        Sign into Hasura (<a target="_new" href="http://localhost:8080/console/data/schema/public">http://localhost:8080/console/data/schema/public</a>) and set your user profile status as <strong>admin</strong> or <strong>manager</strong> (through the <strong>api_profile table</strong>).
                     {/if}
 
             </div>

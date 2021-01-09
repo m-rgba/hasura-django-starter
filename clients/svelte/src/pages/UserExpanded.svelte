@@ -158,7 +158,7 @@
                             <p class="strong">Role</p>
                             <select bind:value={role} class="mb-xs w-100" name="roles">
                                 <option disabled value="">Select a Role</option>
-                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
                                 <option value="user">User</option>
                             </select>
 

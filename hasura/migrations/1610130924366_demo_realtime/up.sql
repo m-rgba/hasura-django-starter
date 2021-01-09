@@ -1,1 +1,0 @@
-CREATE TABLE "public"."demo_realtime"("created_at" timestamptz NOT NULL DEFAULT now(), "created_by" Integer NOT NULL, "message" text NOT NULL, "id" serial NOT NULL, PRIMARY KEY ("id") , FOREIGN KEY ("created_by") REFERENCES "public"."auth_user"("id") ON UPDATE no action ON DELETE no action);

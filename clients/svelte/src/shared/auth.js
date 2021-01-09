@@ -32,6 +32,7 @@ export async function token(redirect) {
             localStorage.setItem("token_expiry", tokenDecoded.exp);
             localStorage.setItem("user_name", tokenDecoded.user_name);
             localStorage.setItem("user_email", tokenDecoded.user_email);
+            localStorage.setItem("user_id", tokenDecoded["https://hasura.io/jwt/claims"]["x-hasura-user-id"]);
             localStorage.setItem("user_role", tokenDecoded["https://hasura.io/jwt/claims"]["x-hasura-default-role"]);
             authLoaded.set(true);
             return(tokenResponse);
