@@ -1,7 +1,7 @@
 <script>
     import { onMount } from "svelte";
     import { navigate, link } from "svelte-routing";
-    import { token } from '../shared/auth.js'
+    import { restResponseHandler } from '../shared/requests.js'
 
     // Components
     import Header from "../components/Header.svelte"
@@ -19,41 +19,7 @@
     let checkpassUpper;
     let checkpassNumber;
     let checkpassSpecial;
-    let checkPass;
-
-    // TODO : Copy-pasta > tweak function from Auth.svelte and import
-
-    async function signupHandler() {
-        if (password != passwordConfirm) {
-            errorMessage = "Your passwords must match. Please enter a matching Password and Confirm Password combination.";
-        } else if ( checkPass === false ){
-            errorMessage = "Your passwords must be a strong password. It must contain at least one lowercase character, uppercase character, special character, and number.";
-        } else {
-            const request = await fetch("http://localhost:8000/api/user/register/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify({ 
-                    "username" : username, 
-                    "email" : email,
-                    "password" : password 
-                }),
-            });
-            if (request.ok) {
-                const response = await request.json();
-                if (response.tokens.access){
-                    navigate("/users?created=true", { replace: true });
-                } else {
-                    errorMessage = 'There was a problem with your request: Internal key error. Please try again.'
-                }
-            } else {
-                errorMessage = 'There was a problem with your request: ' + request.statusText;
-            }
-        }
-    }
-
+    let passCheck;
     function passwordStrengthCheck() {
         if (password.match(/[a-z]+/)){
             checkpassLower = true;
@@ -76,9 +42,34 @@
             checkpassSpecial = false;
         }
         if ((checkpassLower === true) && (checkpassUpper === true) && (checkpassNumber === true) && (checkpassSpecial === true)){
-            checkPass = true; 
+            passCheck = true;
+        }
+    }
+
+    async function signupHandler() {
+        if (password != passwordConfirm) {
+            errorMessage = "Your passwords must match. Please enter a matching Password and Confirm Password combination.";
+        } else if ( passCheck !== true ){
+            errorMessage = "Your passwords must be a strong password. It must contain at least one lowercase character, uppercase character, special character, and number.";
         } else {
-            checkPass = false; 
+            const request = await fetch("http://localhost:8000/api/user/register/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({ 
+                    "username" : username, 
+                    "email" : email,
+                    "password" : password 
+                }),
+            });
+            const createUser = await restResponseHandler(request);
+            if (createUser.success === true){
+                navigate("/users?created=true", { replace: true });
+            } else {
+                errorMessage = createUser.response;
+            }  
         }
     }
 </script>

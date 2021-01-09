@@ -1,7 +1,8 @@
 <script>
     import { onMount } from "svelte";
-    import { link } from "svelte-routing";
+    import { navigate, link } from "svelte-routing";
     import { token } from '../shared/auth.js'
+    import { restResponseHandler, gqlResponseHandler } from '../shared/requests.js'
 
     // Components
     import Header from "../components/Header.svelte"
@@ -10,82 +11,76 @@
     onMount(() => {
         getExpandedUser();
     });
-    let pageRetry = 1;
-
     let successMessage;
     let errorMessage;
 
     let email = "";
     let newEmail = "";
     let role = "";
+    let is_active = "";
+
     export let username;
 
-    let userVariable = {}
-    let updateProfileVariable = {}
-
     async function getExpandedUser() {
-        pageRetry = pageRetry + 1;
-        if (pageRetry >= 15){
-            errorMessage = 'Wasn\'t able to reconnect. Please refresh and try again.';
-            throw 'JWT Refresh Error';
-        }
-
-        const accessToken = localStorage.getItem('token');
+        const variable = {};
         const query = `
             query getUser($username : String!) {
                 auth_user(where: {username: {_eq: $username}}) {
                     email
-                    id
+                    is_active
                     api_profile {
                         role
                     }
                 }
             }
         `;
-        userVariable["username"] = username;
-
+        variable["username"] = username;
+        const accessToken = await token();
         const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: "Bearer " + accessToken,
-            },
-            body: JSON.stringify({
-                query: query,
-                variables: userVariable
-            })
+            headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },
+            body: JSON.stringify({ query: query, variables: variable })
         });
-        if (request.ok) {
-            const response = await request.json();
-            if (response.errors){
-                if(response.errors[0].extensions.code === 'invalid-jwt'){ 
-                    await new Promise(r => setTimeout(r, 500));
-                    // console.log('> Token Update / Reconnecting...');
-                    token();
-                    getExpandedUser();
-                } else {
-                    errorMessage = response.errors[0].message;
-                }
-            } else {
-                pageRetry = 1;
-                email = response.data.auth_user[0].email;
-                newEmail = response.data.auth_user[0].email;
-                role = response.data.auth_user[0].api_profile.role
-            }
+        const userProfile = await gqlResponseHandler(request);
+        if (userProfile.success === true){
+            is_active = userProfile.response.auth_user[0].is_active;
+            email = userProfile.response.auth_user[0].email;
+            role = userProfile.response.auth_user[0].api_profile.role;
         } else {
-            errorMessage = 'There was a problem with your request: ' + request.statusText;
-        }
-    }
+            errorMessage = userProfile.response;
+        }  
+    };
+
+    async function userStatusChange(statusType) {
+        const variable = {};
+        const query = `
+            mutation updateUserStatus($username: String!, $statusType: Boolean!) {
+                    update_auth_user(where: {username: {_eq: $username}}, _set: {is_active: $statusType}) {
+                        returning {
+                            username
+                        }
+                    }
+                }
+        `;
+        variable["username"] = username;
+        variable["statusType"] = statusType;
+        const accessToken = await token();
+        const request = await fetch("http://localhost:8080/v1/graphql", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },
+            body: JSON.stringify({ query: query, variables: variable })
+        });
+        const userStatus = await gqlResponseHandler(request);
+        if (userStatus.success === true){
+            is_active = statusType;
+            successMessage = "The user\'s status has been updated."
+        } else {
+            errorMessage = userStatus.response;
+        }  
+    };
 
     async function updateUserHandler() {
-        pageRetry = pageRetry + 1;
-        if (pageRetry >= 15){
-            errorMessage = 'Wasn\'t able to reconnect. Please refresh and try again.';
-            throw 'JWT Refresh Error';
-        }
-
-        const accessToken = localStorage.getItem('token');
+        const variable = {};
         const query = `
             mutation updateUser($username: String!, $email: String!, $role: String!) {
                 update_auth_user(where: {username: {_eq: $username}}, _set: {email: $email}){
@@ -96,41 +91,22 @@
                 }
             }
         `;
-        updateProfileVariable["username"] = username;
-        updateProfileVariable["email"] = newEmail;
-        updateProfileVariable["role"] = role;
-
+        variable["username"] = username;
+        if (newEmail === ''){ variable["email"] = email; } else { variable["email"] = newEmail; }
+        variable["role"] = role;
+        const accessToken = await token();
         const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: "Bearer " + accessToken,
-            },
-            body: JSON.stringify({
-                query: query,
-                variables: updateProfileVariable
-            })
+            headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },
+            body: JSON.stringify({ query: query, variables: variable })
         });
-        if (request.ok) {
-            const response = await request.json();
-            if (response.errors){
-                if(response.errors[0].extensions.code === 'invalid-jwt'){ 
-                    await new Promise(r => setTimeout(r, 500));
-                    // console.log('> Token Update / Reconnecting...');
-                    token();
-                    updateUserHandler();
-                } else {
-                    errorMessage = response.errors[0].message;
-                }
-            } else {
-                pageRetry = 1;
-                successMessage = 'The user account has been updated.'
-            }
+        const userProfile = await gqlResponseHandler(request);
+        if (userProfile.success === true){
+            navigate("/users?updated=true", { replace: true });
         } else {
-            errorMessage = 'There was a problem with your request: ' + request.statusText;
-        }
-    }
+            errorMessage = userProfile.response;
+        }  
+    };
 </script>
 
 <Header />
@@ -168,6 +144,12 @@
                         <input class="w-100 mb-xs" disabled value="{username}" />
                         <p class="strong">Current Email</p>
                         <input class="w-100 mb-xs" disabled value="{email}" />
+                        <p class="strong">Current Status</p>
+                        {#if is_active === true}
+                            <input class="w-100 mb-xs" disabled value="Active" />
+                        {:else}
+                            <input class="w-100 mb-xs" disabled value="Disabled" />
+                        {/if}
 
                         <form on:submit|preventDefault={updateUserHandler}>
                             <p class="strong">Update Email</p>
@@ -176,7 +158,7 @@
                             <p class="strong">Role</p>
                             <select bind:value={role} class="mb-xs w-100" name="roles">
                                 <option disabled value="">Select a Role</option>
-                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
                                 <option value="user">User</option>
                             </select>
 
@@ -184,6 +166,11 @@
                         </form>
                     </div>
                 </div>
+                {#if is_active === true}
+                    <a class="red" on:click={() => userStatusChange(false)} href="#!"><ion-icon name="close-circle-outline"></ion-icon> Disable User</a>
+                {:else}
+                    <a class="green" on:click={() => userStatusChange(true)} href="#!"><ion-icon name="checkmark-circle-outline"></ion-icon> Enable User</a>
+                {/if}
             </div>
         </div>
     </div>

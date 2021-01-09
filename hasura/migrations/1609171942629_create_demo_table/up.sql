@@ -1,4 +1,4 @@
-CREATE TABLE "public"."public_posts"("id" serial NOT NULL, "title" text NOT NULL, "content" text NOT NULL, "created_at" timestamptz NOT NULL DEFAULT now(), "updated_at" timestamptz NOT NULL DEFAULT now(), "created_by" integer NOT NULL, PRIMARY KEY ("id") , FOREIGN KEY ("id") REFERENCES "public"."auth_user"("id") ON UPDATE no action ON DELETE no action);
+CREATE TABLE "public"."public_posts"("id" serial NOT NULL, "title" text NOT NULL, "content" text NOT NULL, "created_at" timestamptz NOT NULL DEFAULT now(), "updated_at" timestamptz NOT NULL DEFAULT now(), "created_by" integer NOT NULL, PRIMARY KEY ("id"));
 CREATE OR REPLACE FUNCTION "public"."set_current_timestamp_updated_at"()
 RETURNS TRIGGER AS $$
 DECLARE

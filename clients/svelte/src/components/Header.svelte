@@ -9,10 +9,12 @@
     export let headerType;
 
     onMount(() => {
-        if(headerType === 'auth'){
-            token(false);
-        } else {
-            token();
+        if(authLoaded === true){
+            if(headerType === 'auth'){
+                token(false);
+            } else {
+                token();
+            }
         }
     });
 
@@ -21,6 +23,7 @@
     function logout() {
         Cookies.set('refresh', "", { sameSite: 'strict' });
         localStorage.setItem("token", "");
+        localStorage.setItem("token_expiry", "");
         localStorage.setItem("user_name", "");
         localStorage.setItem("user_email", "");
         localStorage.setItem("user_role", "");

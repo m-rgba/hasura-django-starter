@@ -5,6 +5,29 @@
   - name: auth_user
     using:
       foreign_key_constraint_on: user_id
+  select_permissions:
+  - role: manager
+    permission:
+      columns:
+      - role
+      - uuid
+      filter: {}
+  - role: user
+    permission:
+      columns:
+      - role
+      - uuid
+      filter: {}
+      limit: 1
+  update_permissions:
+  - role: manager
+    permission:
+      columns:
+      - registration_sent
+      - role
+      - uuid
+      filter: {}
+      check: null
 - table:
     schema: public
     name: auth_user
@@ -25,13 +48,40 @@
         table:
           schema: public
           name: django_rest_passwordreset_resetpasswordtoken
-  - name: public_posts
-    using:
-      foreign_key_constraint_on:
-        column: id
-        table:
-          schema: public
-          name: public_posts
+  select_permissions:
+  - role: manager
+    permission:
+      columns:
+      - email
+      - id
+      - is_active
+      - last_login
+      - username
+      filter: {}
+  - role: user
+    permission:
+      columns:
+      - username
+      filter: {}
+  update_permissions:
+  - role: manager
+    permission:
+      columns:
+      - email
+      - is_active
+      - last_login
+      - username
+      filter: {}
+      check: null
+  - role: user
+    permission:
+      columns:
+      - email
+      - last_login
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+      check: null
   event_triggers:
   - name: new_registration_email
     definition:
@@ -43,6 +93,80 @@
       interval_sec: 10
       timeout_sec: 60
     webhook: http://hds-django:8000/api/logic/new_registration_email/
+- table:
+    schema: public
+    name: demo_public_posts
+  array_relationships:
+  - name: auth_user
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: auth_user
+        column_mapping:
+          created_by: id
+  select_permissions:
+  - role: public
+    permission:
+      columns:
+      - id
+      - title
+      - content
+      - created_at
+      - updated_at
+      - created_by
+      filter: {}
+- table:
+    schema: public
+    name: demo_public_posts_count
+- table:
+    schema: public
+    name: demo_realtime
+  array_relationships:
+  - name: auth_user
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: auth_user
+        column_mapping:
+          created_by: id
+  insert_permissions:
+  - role: manager
+    permission:
+      check: {}
+      set:
+        created_by: x-hasura-User-Id
+      columns:
+      - created_at
+      - id
+      - message
+      backend_only: false
+  - role: user
+    permission:
+      check:
+        created_by:
+          _eq: X-Hasura-User-Id
+      set:
+        created_by: x-hasura-User-Id
+      columns:
+      - message
+      backend_only: false
+  select_permissions:
+  - role: manager
+    permission:
+      columns:
+      - created_at
+      - created_by
+      - message
+      filter: {}
+  - role: user
+    permission:
+      columns:
+      - created_at
+      - created_by
+      - message
+      filter: {}
 - table:
     schema: public
     name: django_rest_passwordreset_resetpasswordtoken
@@ -64,21 +188,3 @@
       interval_sec: 10
       timeout_sec: 60
     webhook: http://hds-django:8000/api/logic/reset_password_email/
-- table:
-    schema: public
-    name: public_posts
-  object_relationships:
-  - name: auth_user
-    using:
-      foreign_key_constraint_on: id
-  select_permissions:
-  - role: public
-    permission:
-      columns:
-      - id
-      - title
-      - content
-      - created_at
-      - updated_at
-      - created_by
-      filter: {}

@@ -103,3 +103,11 @@ ion-icon {
 .poweredby:hover{
     opacity:1;
 }
+
+@media (max-width: 768px) {
+    footer{
+        width: 100%;
+        transform: none;
+        position: inherit;
+    }
+}
