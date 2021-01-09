@@ -199,6 +199,9 @@ button.sm > ion-icon{
 .left{
     text-align: left;
 }
+.shadow{
+    box-shadow: 2px 2px 2px 0 rgba(0, 0, 0,.08);
+}
 
 .placeholder{
     color: transparent;
