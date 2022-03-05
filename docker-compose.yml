@@ -27,8 +27,8 @@ services:
 
   hasura:
     # Uncomment and comment image below to disable migrations
-    # image: hasura/graphql-engine:latest
-    image: hasura/graphql-engine:latest.cli-migrations-v2
+    # image: hasura/graphql-engine:v1.3.3
+    image: hasura/graphql-engine:v1.3.3.cli-migrations-v2
     volumes:
       - ./hasura/migrations:/hasura-migrations
       - ./hasura/metadata:/hasura-metadata
