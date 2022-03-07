@@ -1,0 +1,14 @@
+version: '2.4'
+
+services:
+  svelte:
+    image: node:lts
+    container_name: hds-client-svelte
+    restart: always
+    command: bash -c "npm install && HOST=0.0.0.0 npm run dev"
+    ports:
+      - "127.0.0.1:35729:35729" # Live Reload
+      - "127.0.0.1:8088:8088"
+    working_dir: /home/node/apps/app
+    volumes:
+      - ./clients/svelte:/home/node/apps/app

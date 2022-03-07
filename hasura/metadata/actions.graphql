@@ -1,13 +1,110 @@
 type Mutation {
-  action_sample (
-    food: String!
-  ): sampleOutput
+  user_change_password(
+    arg: ChangePassword!
+  ): ChangePasswordStatus!
 }
 
+type Mutation {
+  user_login(
+    arg: UserLogin!
+  ): UserToken!
+}
 
+type Mutation {
+  user_password_reset(
+    arg: UserResetEmail!
+  ): ResetStatus!
+}
 
+type Mutation {
+  user_password_reset_confirm(
+    arg: UserResetConfirm!
+  ): ResetConfirmStatus!
+}
 
-type sampleOutput {
-  hotdog : Boolean!
+type Query {
+  user_password_reset_validate(
+    arg: UserResetValidate!
+  ): ResetStatus!
+}
+
+type Mutation {
+  user_refresh(
+    arg: UserRefresh!
+  ): UserAccessToken!
+}
+
+type Mutation {
+  user_register(
+    arg: UserRegister!
+  ): User!
+}
+
+input UserRegister {
+  username: String!
+  email: String!
+  password: String!
+}
+
+input UserLogin {
+  username: String!
+  password: String!
+}
+
+input UserRefresh {
+  refresh: String!
+}
+
+input ChangePassword {
+  old_password: String!
+  new_password: String!
+}
+
+input UserResetEmail {
+  email: String!
+}
+
+input UserResetValidate {
+  email: String!
+  token: String!
+}
+
+input UserResetConfirm {
+  email: String!
+  token: String!
+  password: String!
+}
+
+type User {
+  id: Int!
+  username: String!
+  email: String!
+  tokens: String!
+}
+
+type UserToken {
+  access: String!
+  refresh: String!
+}
+
+type UserAccessToken {
+  access: String!
+}
+
+type ChangePasswordStatus {
+  status: String!
+  code: Int!
+}
+
+type ResetStatus {
+  status: String!
+}
+
+type ResetStatusValidate {
+  status: String!
+}
+
+type ResetConfirmStatus {
+  status: String!
 }
 

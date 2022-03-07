@@ -1,0 +1,42 @@
+table:
+  name: auth_user
+  schema: public
+object_relationships:
+- name: api_profile
+  using:
+    foreign_key_constraint_on:
+      column: user_id
+      table:
+        name: api_profile
+        schema: public
+select_permissions:
+- permission:
+    columns:
+    - date_joined
+    - email
+    - id
+    - last_login
+    - username
+    filter: {}
+  role: editor
+- permission:
+    columns:
+    - date_joined
+    - email
+    - id
+    - last_login
+    - username
+    filter: {}
+  role: manager
+update_permissions:
+- permission:
+    check: null
+    columns:
+    - email
+    - username
+    filter: {}
+  role: manager
+delete_permissions:
+- permission:
+    filter: {}
+  role: manager

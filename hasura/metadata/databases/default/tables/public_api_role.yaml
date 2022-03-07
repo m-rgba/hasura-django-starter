@@ -1,0 +1,22 @@
+table:
+  name: api_role
+  schema: public
+array_relationships:
+- name: api_profiles
+  using:
+    foreign_key_constraint_on:
+      column: role_id
+      table:
+        name: api_profile
+        schema: public
+select_permissions:
+- permission:
+    columns:
+    - name
+    filter: {}
+  role: editor
+- permission:
+    columns:
+    - name
+    filter: {}
+  role: manager

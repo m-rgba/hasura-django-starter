@@ -1,0 +1,3 @@
+table:
+  name: test_table
+  schema: public

@@ -1,0 +1,4 @@
+- "!include public_api_profile.yaml"
+- "!include public_api_role.yaml"
+- "!include public_auth_user.yaml"
+- "!include public_django_rest_passwordreset_resetpasswordtoken.yaml"
