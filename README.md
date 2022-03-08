@@ -142,7 +142,7 @@ http://localhost:8000/api/user/register/
 ```
 `POST` : accepts `username`, `email`, and `password`. Returns new user info and a first set of returned tokens.
 
-**Query:**
+**GQL Query:**
 ```graphql
 mutation userRegister($email: String = "", $password: String = "", $username: String = "") {
   user_register(arg: {password: $password, username: $username, email: $email}) {
@@ -168,9 +168,9 @@ http://localhost:8000/api/login/
 ```
 `POST` : accepts `username` and `password`. Returns access and refresh tokens.
 
-**Query:**
+**GQL Query:**
 ```graphql
-query userLogin($username: String = "", $password: String = "") {
+mutation userLogin($username: String = "", $password: String = "") {
   user_login(arg: {username: $username, password: $password}) {
     access
     refresh
@@ -191,9 +191,9 @@ http://localhost:8000/api/token/refresh/
 ```
 `POST` : accepts `refresh` token. Provides new access token.
 
-**Query:**
+**GQL Query:**
 ```graphql
-query userRefresh($refresh: String = "") {
+mutation userRefresh($refresh: String = "") {
   user_refresh(arg: {refresh: $refresh}) {
     access
   }
@@ -212,9 +212,9 @@ http://localhost:8000/api/user/change_password/
 ```
 `PUT` / `PATCH` : accepts `old_password`, `new_password`. Requires `authorization` header with access token.
 
-**Query:**
+**GQL Query:**
 ```graphql
-query userChangePassword($old_password: String = "", $new_password: String = "") {
+mutation userChangePassword($old_password: String = "", $new_password: String = "") {
   user_change_password(arg: {old_password: $old_password, new_password: $new_password}) {
     status
     code
@@ -237,9 +237,9 @@ http://localhost:8000/api/reset_password/
 
 *Note: there's a message below in **Events** in where you can add your SMTP email logic logic.*
 
-**Query:**
+**GQL Query:**
 ```graphql
-query userPasswordReset($email: String = "") {
+mutation userPasswordReset($email: String = "") {
   user_password_reset(arg: {email: $email}) {
     status
   }
@@ -252,23 +252,50 @@ query userPasswordReset($email: String = "") {
 }
 ```
 
-
-
-
-    
-
-
-    
-
-
-
-    http://localhost:8000/api/reset_password/validate_token/
-
+## Validate Password Reset Token
+```
+http://localhost:8000/api/reset_password/validate_token/
+```
 `POST` : accepts `email` and `token`. Returns 200 OK status if the token is verified.
 
-    http://localhost:8000/api/reset_password/confirm/
+**GQL Query:**
+```graphql
+query userPasswordResetValidate($email: String = "", $token: String = "") {
+  UserResetValidate(arg: {email: $email, token: $token}) {
+    status
+  }
+}
+```
+**Variable:**
+```json
+{
+  "email": "[EMAIL]",
+  "token": "[TOKEN]"
+}
+```
 
+## Confirm and Submit Password Reset
+```
+http://localhost:8000/api/reset_password/confirm/
+```
 `POST` : accepts `email`, `token`, `password` (new password). Returns 200 status if the token + email pair is verified and the password is updated.
+
+**GQL Query:**
+```graphql
+mutation userPasswordResetConfirm($email: String = "", $token: String = "", $password: String = "") {
+  user_password_reset_confirm(arg: {email: $email, token: $token, password: $password}) {
+    status
+  }
+}
+```
+**Variable:**
+```json
+{
+  "email": "[EMAIL]",
+  "password": "[PASSWORD]",
+  "token": "[TOKEN]"
+}
+```
 
 -----
 
