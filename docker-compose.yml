@@ -32,7 +32,7 @@ services:
       DJANGO_DEFAULT_USERNAME: 'AdminUser'
       DJANGO_DEFAULT_PASSWORD: 'AdminPassword'
       DJANGO_DEFAULT_EMAIL: 'email@martinmark.com'
-      DJANGO_DEFAULT_ROLE: 'editor'
+      DJANGO_DEFAULT_ROLE: 'manager'
       # Any $ in your secret key needs another $ for interpolation. > ex. `...4v$0n^c...` becomes `...4v$$0n^c...` (read readme.md)
       DJANGO_SECRET: 'T2uy8pg3OjW26TdngnPA3LjuPlthW8AH6xIOBXu9oFs'
       PYTHONUNBUFFERED: 1
@@ -69,3 +69,15 @@ services:
       HASURA_GRAPHQL_JWT_SECRET: '{ "type": "HS256", "key": "T2uy8pg3OjW26TdngnPA3LjuPlthW8AH6xIOBXu9oFs" }'
     ports:
       - "127.0.0.1:8080:8080"
+
+  client:
+    image: node:lts
+    container_name: hds-client
+    restart: always
+    command: bash -c "npm install && HOST=0.0.0.0 npm run dev"
+    ports:
+      - "127.0.0.1:35729:35729" # Live Reload
+      - "127.0.0.1:8088:8088"
+    working_dir: /home/node/apps/app
+    volumes:
+      - ./clients/svelte:/home/node/apps/app

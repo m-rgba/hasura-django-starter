@@ -60,6 +60,8 @@ Afterwards:
 
 ## Client Sample Starter (Svelte)
 
+You'll be able to access your sample app through: http://localhost:8088/
+
 ![Client Demo](./readme-client-demo.gif)
 
 A sample client application which helps illustrate everything tied together:
@@ -67,13 +69,6 @@ A sample client application which helps illustrate everything tied together:
 - Example usage of the REST endpoints listed below.
 - Query and mutation GraphQL samples (verbose, no client magic - using Fetch).
 - Subscriptions to demonstrate Hasura's realtime API (more magical - using Svelte-Apollo).
-
-From the project directory, after starting the above containers:
-```
-docker-compose -f docker-compose-client.yml up
-```
-
-You'll be able to access your sample app through: http://localhost:8088/
 
 -----
 
