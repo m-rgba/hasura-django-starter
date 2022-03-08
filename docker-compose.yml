@@ -12,7 +12,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 25
 
   django:
     image: python:3
@@ -27,7 +27,7 @@ services:
     entrypoint: ["sh", "entrypoint.sh"]
     environment:
       # Comma seperated roles available
-      DJANGO_ROLES: 'editor, user'
+      DJANGO_ROLES: 'manager, user'
       # Username and password for initial superuser
       DJANGO_DEFAULT_USERNAME: 'AdminUser'
       DJANGO_DEFAULT_PASSWORD: 'AdminPassword'
@@ -43,12 +43,12 @@ services:
       test: ["CMD-SHELL", "curl --fail http://localhost:8000/api/logic/healthcheck/ || exit 1"]
       interval: 5s
       timeout: 5s
-      retries: 100
+      retries: 50
 
   hasura:
-    # Uncomment and comment image below to disable migrations
-    image: hasura/graphql-engine:v2.3.0
-    # image: hasura/graphql-engine:v2.3.0.cli-migrations-v3
+    # Change comments for image below to enable / disable metadata and SQL migrations
+    # image: hasura/graphql-engine:v2.3.0
+    image: hasura/graphql-engine:v2.3.0.cli-migrations-v3
     volumes:
       - ./hasura/migrations:/hasura-migrations
       - ./hasura/metadata:/hasura-metadata

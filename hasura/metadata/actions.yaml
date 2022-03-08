@@ -5,81 +5,85 @@ actions:
     handler: http://host.docker.internal:8000/api/user/change_password/
     forward_client_headers: true
     request_transform:
-      body: "{\n\t\"old_password\": {{$body.input.arg.old_password}},\n\t\"new_password\":
-        {{$body.input.arg.new_password}}\n}"
+      body: '{"old_password": {{$body.input.arg.old_password}},"new_password": {{$body.input.arg.new_password}}}'
       content_type: application/json
       method: PUT
       query_params: {}
       template_engine: Kriti
+  permissions:
+  - role: manager
+  - role: user
 - name: user_login
   definition:
     kind: synchronous
     handler: http://host.docker.internal:8000/api/login/
     request_transform:
-      body: |-
-        {
-          "username": {{$body.input.arg.username}},
-          "password": {{$body.input.arg.password}}
-        }
+      body: '{"username": {{$body.input.arg.username}},"password": {{$body.input.arg.password}}}'
       content_type: application/json
       method: POST
       query_params: {}
       template_engine: Kriti
+  permissions:
+  - role: public
 - name: user_password_reset
   definition:
     kind: synchronous
     handler: http://host.docker.internal:8000/api/reset_password/
     request_transform:
-      body: "{\r\n\t\"email\": {{$body.input.arg.email}}\r\n}"
+      body: '{"email": {{$body.input.arg.email}}}'
       content_type: application/json
       method: POST
       query_params: {}
       template_engine: Kriti
+  permissions:
+  - role: public
 - name: user_password_reset_confirm
   definition:
     kind: synchronous
     handler: http://host.docker.internal:8000/api/reset_password/confirm/
     request_transform:
-      body: "{\r\n\t\"email\": {{$body.input.arg.email}},\r\n\t\"token\": {{$body.input.arg.token}},\r\n\t\"password\":
-        {{$body.input.arg.password}}\r\n}"
+      body: '{"email": {{$body.input.arg.email}},"token": {{$body.input.arg.token}},"password":
+        {{$body.input.arg.password}}}'
       content_type: application/json
       template_engine: Kriti
+  permissions:
+  - role: public
 - name: user_password_reset_validate
   definition:
     kind: ""
     handler: http://host.docker.internal:8000/api/reset_password/validate_token/
     request_transform:
-      body: "{\n\t\"email\": {{$body.input.arg.email}},\n\t\"token\": {{$body.input.arg.token}}\n}"
+      body: '{"email": {{$body.input.arg.email}},"token": {{$body.input.arg.token}}}'
       content_type: application/json
       template_engine: Kriti
+  permissions:
+  - role: public
 - name: user_refresh
   definition:
     kind: synchronous
     handler: http://host.docker.internal:8000/api/token/refresh/
     request_transform:
-      body: |-
-        {
-          "refresh": {{$body.input.arg.refresh}}
-        }
+      body: '{"refresh": {{$body.input.arg.refresh}}}'
       content_type: application/json
       method: POST
       query_params: {}
       template_engine: Kriti
+  permissions:
+  - role: user
+  - role: manager
 - name: user_register
   definition:
     kind: synchronous
     handler: http://host.docker.internal:8000/api/user/register/
     request_transform:
-      body: |-
-        {
-          "username": {{$body.input.arg.username}},
-          "email": {{$body.input.arg.email}},
-          "password": {{$body.input.arg.password}}
-        }
+      body: '{"username": {{$body.input.arg.username}},"email": {{$body.input.arg.email}},"password":
+        {{$body.input.arg.password}}}'
       content_type: application/json
       method: POST
       query_params: {}
       template_engine: Kriti
+  permissions:
+  - role: public
 custom_types:
   enums: []
   input_objects:

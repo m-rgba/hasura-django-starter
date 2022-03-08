@@ -9,34 +9,39 @@ object_relationships:
       table:
         name: api_profile
         schema: public
+array_relationships:
+- name: demo_realtimes
+  using:
+    foreign_key_constraint_on:
+      column: created_by
+      table:
+        name: demo_realtime
+        schema: public
+- name: django_rest_passwordreset_resetpasswordtokens
+  using:
+    foreign_key_constraint_on:
+      column: user_id
+      table:
+        name: django_rest_passwordreset_resetpasswordtoken
+        schema: public
 select_permissions:
 - permission:
     columns:
     - date_joined
     - email
     - id
-    - last_login
+    - is_active
     - username
     filter: {}
-  role: editor
+  role: manager
 - permission:
     columns:
     - date_joined
     - email
     - id
-    - last_login
+    - is_active
     - username
-    filter: {}
-  role: manager
-update_permissions:
-- permission:
-    check: null
-    columns:
-    - email
-    - username
-    filter: {}
-  role: manager
-delete_permissions:
-- permission:
-    filter: {}
-  role: manager
+    filter:
+      id:
+        _eq: X-Hasura-User-Id
+  role: user

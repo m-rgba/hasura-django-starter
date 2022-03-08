@@ -136,27 +136,131 @@ More information here: https://stackoverflow.com/questions/40619582/how-can-i-es
 
 **As of 2.0 these are mapped to GraphQL nodes using Hasura Actions**
 
-    http://localhost:8000/api/user/register/
-
+## Register User
+```
+http://localhost:8000/api/user/register/
+```
 `POST` : accepts `username`, `email`, and `password`. Returns new user info and a first set of returned tokens.
 
-    http://localhost:8000/api/login/
+**Query:**
+```graphql
+mutation userRegister($email: String = "", $password: String = "", $username: String = "") {
+  user_register(arg: {password: $password, username: $username, email: $email}) {
+    id
+    username
+    email
+    tokens
+  }
+}
+```
+**Variable:**
+```json
+{
+  "email": "[EMAIL]",
+  "password": "[PASSWORD]",
+  "username": "[USERNAME]"
+}
+```
 
+## Login
+```
+http://localhost:8000/api/login/
+```
 `POST` : accepts `username` and `password`. Returns access and refresh tokens.
 
-    http://localhost:8000/api/token/refresh/
+**Query:**
+```graphql
+query userLogin($username: String = "", $password: String = "") {
+  user_login(arg: {username: $username, password: $password}) {
+    access
+    refresh
+  }
+}
+```
+**Variable:**
+```json
+{
+  "username": "[USERNAME]",
+  "password": "[PASSWORD]"
+}
+```
 
+## Refresh Access Token
+```
+http://localhost:8000/api/token/refresh/
+```
 `POST` : accepts `refresh` token. Provides new access token.
 
-    http://localhost:8000/api/user/change_password/
+**Query:**
+```graphql
+query userRefresh($refresh: String = "") {
+  user_refresh(arg: {refresh: $refresh}) {
+    access
+  }
+}
+```
+**Variable:**
+```json
+{
+  "refresh": "[REFRESH TOKEN]"
+}
+```
 
+## Change Password
+```
+http://localhost:8000/api/user/change_password/
+```
 `PUT` / `PATCH` : accepts `old_password`, `new_password`. Requires `authorization` header with access token.
 
-    http://localhost:8000/api/reset_password/
+**Query:**
+```graphql
+query userChangePassword($old_password: String = "", $new_password: String = "") {
+  user_change_password(arg: {old_password: $old_password, new_password: $new_password}) {
+    status
+    code
+  }
+}
+```
+**Variable:**
+```json
+{
+  "old_password": "[OLD PASSWORD]",
+  "new_password": "[NEW PASSWORD ]"
+}
+```
 
+## Password Reset (w/ Email Logic)
+```
+http://localhost:8000/api/reset_password/
+```
 `POST` : accepts `email`. Generates a password reset token in the database 
 
 *Note: there's a message below in **Events** in where you can add your SMTP email logic logic.*
+
+**Query:**
+```graphql
+query userPasswordReset($email: String = "") {
+  user_password_reset(arg: {email: $email}) {
+    status
+  }
+}
+```
+**Variable:**
+```json
+{
+  "email": "[EMAIL]"
+}
+```
+
+
+
+
+    
+
+
+    
+
+
 
     http://localhost:8000/api/reset_password/validate_token/
 

@@ -11,27 +11,33 @@ object_relationships:
 select_permissions:
 - permission:
     columns:
-    - id
     - registration_sent
     - role_id
     - user_id
     - uuid
-    filter: {}
-  role: editor
-- permission:
-    columns:
-    - id
-    - registration_sent
-    - uuid
-    - role_id
-    - user_id
     filter: {}
   role: manager
-update_permissions:
 - permission:
-    check: null
     columns:
     - registration_sent
     - role_id
+    - user_id
+    - uuid
+    filter:
+      auth_user:
+        id:
+          _eq: X-Hasura-User-Id
+    limit: 1
+  role: user
+update_permissions:
+- permission:
+    check: {}
+    columns:
+    - registration_sent
+    - role_id
+    filter: {}
+  role: manager
+delete_permissions:
+- permission:
     filter: {}
   role: manager
