@@ -1,4 +1,4 @@
-# Hasura + Django Starter (HDS)
+# Reported.AI
 
 A project starter which pairs up the best features of Hasura with Django ❤️
 
