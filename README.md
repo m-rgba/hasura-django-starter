@@ -1,10 +1,32 @@
-# Hasura + Django Starter (HDS)
+# Reported.AI
 
 A project starter which pairs up the best features of Hasura with Django ❤️
 
-***(Now with 100% more Svelte client examples)***
-
 The best of Hasura's instant, realtime GraphQL API meshed with Django's built-in auth model and the ability to extend logic across the two services.
+
+## Latest Update
+***(Now with 100% more Hasura 2.0+ examples)***
+
+**Updates / New Features**
+- Updated to use Hasura 2.0+.
+    - Makes more effective use of Actions for mapping Django REST endpoints to GraphQL.
+- Updated Hasura metadata to V3
+- Updated to use Graphqurl JS client: https://github.com/hasura/graphqurl.
+- Added `DJANGO_DEFAULT_USERNAME`, `DJANGO_DEFAULT_PASSWORD`, `DJANGO_DEFAULT_EMAIL`, `DJANGO_DEFAULT_ROLE` in env vars (to create initial user).
+- Added healthchecks to ensure order of operations (PG => Django (inc. migrations) => Hasura)
+
+**Need More Demos?**
+- Demo schemas were removed from this demo (aside from the realtime demo table for the client):
+    - There's a set of demo schemas + metdata which can now be loaded through:
+    - http://localhost:9695/console/data/default/
+
+**Looking for 1.3.3?**
+- Looking for the first release with support for Hasura 1.3.3?
+- Check out here: https://github.com/m-rgba/hasura-django-starter/tree/1.0
+
+-----
+
+## Features
 
 ### Hasura
 - Auto-generate GraphQL API for any Postgres database.
@@ -38,6 +60,8 @@ Afterwards:
 
 ## Client Sample Starter (Svelte)
 
+You'll be able to access your sample app through: http://localhost:8088/
+
 ![Client Demo](./readme-client-demo.gif)
 
 A sample client application which helps illustrate everything tied together:
@@ -45,13 +69,6 @@ A sample client application which helps illustrate everything tied together:
 - Example usage of the REST endpoints listed below.
 - Query and mutation GraphQL samples (verbose, no client magic - using Fetch).
 - Subscriptions to demonstrate Hasura's realtime API (more magical - using Svelte-Apollo).
-
-From the project directory, after starting the above containers:
-```
-docker-compose -f docker-compose-client-svelte.yml up
-```
-
-You'll be able to access your sample app through: http://localhost:8088/
 
 -----
 
@@ -89,8 +106,10 @@ Contains all of our application logic:
 - auth.py
     - Auth specific views and serializers.
     - Customizes Hasura JWT claims.
-- logic.py
+- sample_logic.py
     - Contains any extended logic (this is where you can write custom functions).
+- sample_email.py
+    - Email-specific extended logic
     - This is used below for our email eventing examples, and a custom action example where Hasura -> <- from Django.
 - urls.py
     - Routing for API endpoints
@@ -109,52 +128,172 @@ If you're running your Django container and would like to generate a new secret,
 More information here: https://stackoverflow.com/questions/40619582/how-can-i-escape-a-dollar-sign-in-a-docker-compose-file
 
 ## Django Auth Endpoints
-    http://localhost:8000/api/user/register/
 
+**As of 2.0 these are mapped to GraphQL nodes using Hasura Actions**
+
+## Register User
+```
+http://localhost:8000/api/user/register/
+```
 `POST` : accepts `username`, `email`, and `password`. Returns new user info and a first set of returned tokens.
 
-    http://localhost:8000/api/token/
+**GQL Query:**
+```graphql
+mutation userRegister($email: String = "", $password: String = "", $username: String = "") {
+  user_register(arg: {password: $password, username: $username, email: $email}) {
+    id
+    username
+    email
+    tokens
+  }
+}
+```
+**Variable:**
+```json
+{
+  "email": "[EMAIL]",
+  "password": "[PASSWORD]",
+  "username": "[USERNAME]"
+}
+```
 
+## Login
+```
+http://localhost:8000/api/login/
+```
 `POST` : accepts `username` and `password`. Returns access and refresh tokens.
 
-    http://localhost:8000/api/token/refresh/
+**GQL Query:**
+```graphql
+mutation userLogin($username: String = "", $password: String = "") {
+  user_login(arg: {username: $username, password: $password}) {
+    access
+    refresh
+  }
+}
+```
+**Variable:**
+```json
+{
+  "username": "[USERNAME]",
+  "password": "[PASSWORD]"
+}
+```
 
+## Refresh Access Token
+```
+http://localhost:8000/api/token/refresh/
+```
 `POST` : accepts `refresh` token. Provides new access token.
 
-    http://localhost:8000/api/token/verify/
+**GQL Query:**
+```graphql
+mutation userRefresh($refresh: String = "") {
+  user_refresh(arg: {refresh: $refresh}) {
+    access
+  }
+}
+```
+**Variable:**
+```json
+{
+  "refresh": "[REFRESH TOKEN]"
+}
+```
 
-`POST` : accepts either `token`. Returns 200 status if the token is verified.
-
-    http://localhost:8000/api/user/change_password/
-
+## Change Password
+```
+http://localhost:8000/api/user/change_password/
+```
 `PUT` / `PATCH` : accepts `old_password`, `new_password`. Requires `authorization` header with access token.
 
-    http://localhost:8000/api/user/reset_password/
+**GQL Query:**
+```graphql
+mutation userChangePassword($old_password: String = "", $new_password: String = "") {
+  user_change_password(arg: {old_password: $old_password, new_password: $new_password}) {
+    status
+    code
+  }
+}
+```
+**Variable:**
+```json
+{
+  "old_password": "[OLD PASSWORD]",
+  "new_password": "[NEW PASSWORD ]"
+}
+```
 
+## Password Reset (w/ Email Logic)
+```
+http://localhost:8000/api/reset_password/
+```
 `POST` : accepts `email`. Generates a password reset token in the database 
 
 *Note: there's a message below in **Events** in where you can add your SMTP email logic logic.*
 
-    http://localhost:8000/api/user/reset_password/validate/
+**GQL Query:**
+```graphql
+mutation userPasswordReset($email: String = "") {
+  user_password_reset(arg: {email: $email}) {
+    status
+  }
+}
+```
+**Variable:**
+```json
+{
+  "email": "[EMAIL]"
+}
+```
 
-`POST` : accepts `email` and `token`. Returns 200 status if the token is verified.
+## Validate Password Reset Token
+```
+http://localhost:8000/api/reset_password/validate_token/
+```
+`POST` : accepts `email` and `token`. Returns 200 OK status if the token is verified.
 
-    http://localhost:8000/api/user/reset_password/confirm/
+**GQL Query:**
+```graphql
+query userPasswordResetValidate($email: String = "", $token: String = "") {
+  UserResetValidate(arg: {email: $email, token: $token}) {
+    status
+  }
+}
+```
+**Variable:**
+```json
+{
+  "email": "[EMAIL]",
+  "token": "[TOKEN]"
+}
+```
 
+## Confirm and Submit Password Reset
+```
+http://localhost:8000/api/reset_password/confirm/
+```
 `POST` : accepts `email`, `token`, `password` (new password). Returns 200 status if the token + email pair is verified and the password is updated.
 
-## Want to test these endpoints pre-development?
-From the project directory:
+**GQL Query:**
+```graphql
+mutation userPasswordResetConfirm($email: String = "", $token: String = "", $password: String = "") {
+  user_password_reset_confirm(arg: {email: $email, token: $token, password: $password}) {
+    status
+  }
+}
 ```
-docker-compose -f docker-compose-hoppscotch.yml up
+**Variable:**
+```json
+{
+  "email": "[EMAIL]",
+  "password": "[PASSWORD]",
+  "token": "[TOKEN]"
+}
 ```
-
-In `docker-compose.yml` if you uncomment the `Hoppscotch` service it will serve a request builder at http://localhost:3000.
-
-I would also recommend Postman (paid) or Insomnia (OSS).
-
 
 -----
+
 Aside from the data views Hasura provides through GraphQL from our database's tables, how else can we get views of our data?
 
 ## Using Hasura for Business Logic (SQL)
@@ -178,18 +317,18 @@ This project makes use of 2 of Hasura's methods for extending it's generate CRUD
 ### Events
 - Events use database eventing to provide *at least once* delivery of a database event (create, update, etc.) to a webhook endpoint.
 - We have 2 custom events created at `http://localhost:8080/console/events/data/manage` for sending emails to newly registered users and new password resets.
-    - These events throw to endpoints which are defined at `./django/api/logic.py` (+ `./django/api/urls.py`).
+    - These events throw to endpoints which are defined at `./django/api/sample_emails.py` (+ `./django/api/urls.py`).
     - You'll notice each of these items have a flag to define completion (`registration_sent`, and `reset_sent` in their respective tables) - that's because of the at least once caveat to make sure that in the case of a double-send (rare, but happens), we don't accidentally double-send an email.
 
 ### Actions
 - Actions extend the query or mutation root of the generated API to define a payload which will be sent to a webhook endpoint, and an expected response to get back.
 - We have 1 action created at `http://localhost:8080/console/actions/manage/actions` which is a very simple example.
-    - The payload is a food which will be thrown to the logic defined in `./django/api/logic.py` (+ `./django/api/urls.py`).
+    - The payload is a food which will be thrown to the logic defined in `./django/api/sample_logic.py` (+ `./django/api/urls.py`).
     - The logic looks at if the food entered is a hotdog and replies *true* of *false*.
-    - The nice part of this we can lean on Django's built in `@permission_classes([IsAuthenticated])` decorator in `logic.py` to verify I'm a logged in user making the request (we're passing our headers from the action), and pair that with Hasura's permissions around which role should be able to make the request through GraphQL.
+    - The nice part of this we can lean on Django's built in `@permission_classes([IsAuthenticated])` decorator in `sample_logic.py` to verify I'm a logged in user making the request (we're passing our headers from the action), and pair that with Hasura's permissions around which role should be able to make the request through GraphQL.
 
 ## Setting Up Emails (and the Reset Password Flow)
-We have some sample email logic which can be found in `./django/api/logic.py` which can be uncommented and used as needed.
+We have some sample email logic which can be found in `./django/api/sample_emails.py` which can be uncommented and used as needed.
 
 For the reset password flow, generally you'll be looking to handle the token as:
 - Embed token in URL link in email (boilerplate shows one implementation of how you may want to do this).

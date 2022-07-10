@@ -1,9 +1,14 @@
 #!/bin/bash -x
-# echo "Static Files"
-# python manage.py collectstatic --noinput
-echo "Make Migrations"
+
+echo "Ensuring dependancies are up-to-date..."
+pip install -r requirements.txt
+echo "Making migrations..."
 python manage.py makemigrations --noinput
-echo "Migrate DB"
+echo "Migrating DB..."
 python manage.py migrate --noinput || exit 1
-echo "Start server"
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
+echo "Initializing with default variables..."
+python manage.py init
+echo "Starting server"
 python manage.py runserver 0.0.0.0:8000

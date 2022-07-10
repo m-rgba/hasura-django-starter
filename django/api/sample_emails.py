@@ -2,7 +2,7 @@ from rest_framework import serializers, status, permissions, generics, views
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User 
-from api.models import profile
+from api.models import Profile
 from django.db import connection
 from django.http import HttpResponse
 from email.message import EmailMessage
@@ -117,16 +117,3 @@ def reset_password_email(request):
     
     else:
         return HttpResponse('Reset email already sent.')
-    
-# Sample Action Logic + Response
-## Receives a food via GraphQL > returns whether it's a hotdog
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def is_hotdog(request):    
-    req_body = json.loads(request.body)
-    food = req_body['input']['food']
-    if food == 'hotdog':
-        response = { 'hotdog':'true' }
-    else:
-        response = { 'hotdog':'false' }
-    return HttpResponse(json.dumps(response))

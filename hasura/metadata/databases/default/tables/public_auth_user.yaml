@@ -1,0 +1,47 @@
+table:
+  name: auth_user
+  schema: public
+object_relationships:
+- name: api_profile
+  using:
+    foreign_key_constraint_on:
+      column: user_id
+      table:
+        name: api_profile
+        schema: public
+array_relationships:
+- name: demo_realtimes
+  using:
+    foreign_key_constraint_on:
+      column: created_by
+      table:
+        name: demo_realtime
+        schema: public
+- name: django_rest_passwordreset_resetpasswordtokens
+  using:
+    foreign_key_constraint_on:
+      column: user_id
+      table:
+        name: django_rest_passwordreset_resetpasswordtoken
+        schema: public
+select_permissions:
+- permission:
+    columns:
+    - date_joined
+    - email
+    - id
+    - is_active
+    - username
+    filter: {}
+  role: manager
+- permission:
+    columns:
+    - date_joined
+    - email
+    - id
+    - is_active
+    - username
+    filter:
+      id:
+        _eq: X-Hasura-User-Id
+  role: user
