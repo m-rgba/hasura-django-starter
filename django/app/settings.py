@@ -21,7 +21,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # IMPORTANT! SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['DJANGO_SECRET']
+#SECRET_KEY = os.environ['DJANGO_SECRET']
+SECRET_KEY = 'secretkey'
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'import_export',
     'api.apps.APIConfig',
+    # 'apps.users'
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
