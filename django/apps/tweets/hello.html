@@ -1,0 +1,61 @@
+{% block title %}hello{%endblock %}
+
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>
+     
+
+
+
+       
+    </title>
+</head>
+<body>
+    <div class="container">
+        {% block content %}
+
+
+
+        <p>this is twitter api {{q1}}</p> 
+
+{% for tweet in tweets %}
+<p> recomended video list<br> </p>
+
+    <table><tr>
+    
+        <th style="color: rgb(65, 41, 11);" >user Id</th>
+         <th style="color: rgb(65, 41, 11);" >date</th>
+         <th style="color: rgb(65, 41, 11);">tweets</th></h3>
+  
+         </tr>
+   <td><h4>${{ tweet.id }}</h4></td>
+    <b>
+    <td>{{ tweet.created_at }}</h4></td>
+    <br>
+    <td><h2>{{tweet.description}}</h2></td>
+    <br>
+    {% for result in results %}
+    {% endfor %}
+
+{% endfor %}
+
+
+{{result}}
+<br>
+
+
+
+
+
+</table>
+
+{%endblock %}
+        
+
+</body>
+</html>
