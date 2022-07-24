@@ -214,3 +214,14 @@ def c(request):
        
     
     return render(request,'example_app/hello.html',context)
+
+
+def like(request):
+    youtube = build('youtube', 'v3', developerKey='AIzaSyBfoGn0960ZupAD7YiIdwfRe1MDbdg9F_U')
+   
+    video_statistics = youtube.videos().list(id='geW09OOqieU',
+                                        part='statistics').execute()
+    print(video_statistics)
+    likecount = int(video_statistics['items'][0]['statistics']['likeCount'])
+    
+    return HttpResponse(likecount)
