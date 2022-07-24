@@ -24,11 +24,11 @@ from rest_framework import permissions
 
 from summer_proj_22.models import Tweets
 from .serializers import TweetsSerializer
-api_key = "CgyLDOJ4EuCh7O1X1StyqpPlE"
-api_secret = "ENn0mOfSNHoLgtap7i9zPpH6RauVYRg2ytFs7hyqPVLHd9uwuw"
-access_token = "1547609471387439108-po4gNeBavDZuq18uvbO7NsSnb4EqEP"
-access_token_secret= "6OCZv7c3475qd5tWq0P3U6k8Z1KWk21aKM1E60mN3yc9f"
-username= "SangeethaDG21"
+api_key = ""
+api_secret = ""
+access_token = ""
+access_token_secret= ""
+username= ""
 screen_name=username
 
 auth = tweepy.OAuthHandler(api_key, api_secret)
@@ -55,7 +55,7 @@ start_time = datetime(year=2020, month=10, day=1).strftime('%Y-%m-%dT%H:%M:%SZ')
 end_time = datetime(year=2021, month=5, day=11).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 from googleapiclient.discovery import build
-api_key = 'AIzaSyBfoGn0960ZupAD7YiIdwfRe1MDbdg9F_U' # Enter your own API key – this one won’t work
+api_key = '' # Enter your own API key – this one won’t work
 
 def bbc(request):
          search_words = "stock market "
@@ -193,7 +193,7 @@ def life(request):
 
 def c(request): 
 # Collect tweets
-    api_key = 'AIzaSyBfoGn0960ZupAD7YiIdwfRe1MDbdg9F_U'
+    api_key = ''
     youtube = build('youtube', 'v3', developerKey=api_key)
     search_words = "#wildfires"
     date_since = "2018-11-16"
@@ -257,7 +257,7 @@ def youtube(request):
     return JsonResponse(response)
 
 def tesla(request):
-    youtube = build('youtube', 'v3', developerKey='AIzaSyBfoGn0960ZupAD7YiIdwfRe1MDbdg9F_U')
+    youtube = build('youtube', 'v3', developerKey='')
     results2 = youtube.search().list(q="tesla ", part="snippet", type="video", order="viewCount",
     
                          maxResults=10).execute()
@@ -268,7 +268,7 @@ def tesla(request):
 
 from youtube_transcript_api import YouTubeTranscriptApi
 def kar(request):
-     youtube = build('youtube', 'v3', developerKey='AIzaSyBfoGn0960ZupAD7YiIdwfRe1MDbdg9F_U')
+     youtube = build('youtube', 'v3', developerKey='')
      results3 = youtube.videos().list(id='geW09OOqieU',part="contentDetails").execute()
      
   
