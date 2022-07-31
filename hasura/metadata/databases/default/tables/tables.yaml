@@ -3,3 +3,7 @@
 - "!include public_auth_user.yaml"
 - "!include public_demo_realtime.yaml"
 - "!include public_django_rest_passwordreset_resetpasswordtoken.yaml"
+- "!include reported_ai_summaries.yaml"
+- "!include reported_ai_transcriptions.yaml"
+- "!include reported_ai_tweets.yaml"
+- "!include reported_ai_users.yaml"

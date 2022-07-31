@@ -1,3 +1,8 @@
 from django.db import models
+from sympy import content
 
-# Create your models here.
+class transcriptions(models.Model): 
+    video_id = models.TextField(max_length=64)
+    title = models.TextField()
+    descriptions = models.TextField()
+    content = models.TextField()

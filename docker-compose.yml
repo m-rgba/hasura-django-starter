@@ -1,7 +1,7 @@
 version: '2.4'
 services:
   postgres:
-    image: postgres:14
+    image: postgres:13.5
     container_name: hds-postgres
     restart: always
     environment:

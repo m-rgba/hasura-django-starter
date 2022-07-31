@@ -1,0 +1,1 @@
+CREATE TABLE "reported_ai"."summaries" ("video_id" text NOT NULL, "summary" text, PRIMARY KEY ("video_id") , UNIQUE ("video_id"));COMMENT ON TABLE "reported_ai"."summaries" IS E'A table for storing AI generated YouTube video summaries along with its video ID';

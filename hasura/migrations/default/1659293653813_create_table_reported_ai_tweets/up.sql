@@ -1,0 +1,1 @@
+CREATE TABLE "reported_ai"."tweets" ("user_id" text NOT NULL, "twitter_id" Text NOT NULL, "tweets" text NOT NULL, PRIMARY KEY ("user_id") );COMMENT ON TABLE "reported_ai"."tweets" IS E'A table to store users\' tweets along with their twitter ID for recommending videos.';

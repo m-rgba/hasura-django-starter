@@ -1,0 +1,1 @@
+CREATE TABLE "reported_ai"."users" ("user_id" serial NOT NULL, "email" text NOT NULL, "twitter_id" text NOT NULL, PRIMARY KEY ("user_id") , UNIQUE ("user_id"), UNIQUE ("email"), UNIQUE ("twitter_id"));COMMENT ON TABLE "reported_ai"."users" IS E'A table to store user information, including tweets and metadata';
