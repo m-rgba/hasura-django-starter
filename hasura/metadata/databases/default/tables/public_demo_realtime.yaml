@@ -1,71 +1,71 @@
 table:
-  name: demo_realtime
   schema: public
+  name: demo_realtime
 object_relationships:
-- name: auth_user
-  using:
-    foreign_key_constraint_on: created_by
+  - name: auth_user
+    using:
+      foreign_key_constraint_on: created_by
 insert_permissions:
-- permission:
-    backend_only: false
-    check:
-      created_by:
-        _eq: X-Hasura-User-Id
-    columns:
-    - message
-    set:
-      created_by: x-hasura-x-hasura-user-id
-  role: manager
-- permission:
-    backend_only: false
-    check:
-      created_by:
-        _eq: X-Hasura-User-Id
-    columns:
-    - message
-    set:
-      created_by: x-hasura-x-hasura-user-id
-  role: user
+  - role: manager
+    permission:
+      check:
+        created_by:
+          _eq: X-Hasura-User-Id
+      set:
+        created_by: x-hasura-x-hasura-user-id
+      columns:
+        - message
+      backend_only: false
+  - role: user
+    permission:
+      check:
+        created_by:
+          _eq: X-Hasura-User-Id
+      set:
+        created_by: x-hasura-x-hasura-user-id
+      columns:
+        - message
+      backend_only: false
 select_permissions:
-- permission:
-    columns:
-    - created_at
-    - created_by
-    - id
-    - message
-    filter: {}
-  role: manager
-- permission:
-    columns:
-    - created_at
-    - created_by
-    - id
-    - message
-    filter: {}
-  role: user
+  - role: manager
+    permission:
+      columns:
+        - created_at
+        - created_by
+        - id
+        - message
+      filter: {}
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - created_by
+        - id
+        - message
+      filter: {}
 update_permissions:
-- permission:
-    check: {}
-    columns:
-    - message
-    filter: {}
-  role: manager
-- permission:
-    check:
-      created_by:
-        _eq: X-Hasura-User-Id
-    columns:
-    - message
-    filter:
-      created_by:
-        _eq: X-Hasura-User-Id
-  role: user
+  - role: manager
+    permission:
+      columns:
+        - message
+      filter: {}
+      check: {}
+  - role: user
+    permission:
+      columns:
+        - message
+      filter:
+        created_by:
+          _eq: X-Hasura-User-Id
+      check:
+        created_by:
+          _eq: X-Hasura-User-Id
 delete_permissions:
-- permission:
-    filter: {}
-  role: manager
-- permission:
-    filter:
-      created_by:
-        _eq: X-Hasura-User-Id
-  role: user
+  - role: manager
+    permission:
+      filter: {}
+  - role: user
+    permission:
+      filter:
+        created_by:
+          _eq: X-Hasura-User-Id

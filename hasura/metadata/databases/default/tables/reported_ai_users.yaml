@@ -1,0 +1,3 @@
+table:
+  schema: reported_ai
+  name: users
