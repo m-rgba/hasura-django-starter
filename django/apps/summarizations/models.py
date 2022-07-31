@@ -1,3 +1,6 @@
 from django.db import models
 
-# Create your models here.
+
+class summarizations(models.Model): 
+    video_id = models.CharField(max_length=12)
+    summary = models.CharField()
