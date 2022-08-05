@@ -1,0 +1,10 @@
+{% block title %}hello{%endblock %}
+{%block content%}
+<h2><p>Top 20 Twitter Tweets{{q1}}</p></h2> 
+
+{% for tweet in tweets %}
+
+<p>{{tweet.text}}</p>
+
+{% endfor %}
+{% endblock %}

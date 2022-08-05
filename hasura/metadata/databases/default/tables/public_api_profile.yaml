@@ -1,0 +1,43 @@
+table:
+  schema: public
+  name: api_profile
+object_relationships:
+  - name: api_role
+    using:
+      foreign_key_constraint_on: role_id
+  - name: auth_user
+    using:
+      foreign_key_constraint_on: user_id
+select_permissions:
+  - role: manager
+    permission:
+      columns:
+        - registration_sent
+        - role_id
+        - user_id
+        - uuid
+      filter: {}
+  - role: user
+    permission:
+      columns:
+        - registration_sent
+        - role_id
+        - user_id
+        - uuid
+      filter:
+        auth_user:
+          id:
+            _eq: X-Hasura-User-Id
+      limit: 1
+update_permissions:
+  - role: manager
+    permission:
+      columns:
+        - registration_sent
+        - role_id
+      filter: {}
+      check: {}
+delete_permissions:
+  - role: manager
+    permission:
+      filter: {}

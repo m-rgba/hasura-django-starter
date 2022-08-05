@@ -1,42 +1,64 @@
 version: '2.4'
-
 services:
   postgres:
-    image: postgres:12
+    image: postgres:13.5
     container_name: hds-postgres
     restart: always
     environment:
       POSTGRES_USER: 'postgres'
       POSTGRES_DB: 'postgres'
       POSTGRES_PASSWORD: 'password'
-      
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 25
+
   django:
-    build: ./django
+    image: python:3
+    volumes:
+      - ./django:/django
     container_name: hds-django
     restart: always
     depends_on:
-      - 'postgres'
-    volumes:
-      - ./django:/code
+      postgres:
+        condition: service_healthy
+    working_dir: /django
+    entrypoint: ["sh", "entrypoint.sh"]
     environment:
-      PYTHONUNBUFFERED: 1
+      # Comma seperated roles available
+      DJANGO_ROLES: 'manager, user'
+      # Username and password for initial superuser
+      DJANGO_DEFAULT_USERNAME: 'AdminUser'
+      DJANGO_DEFAULT_PASSWORD: 'AdminPassword'
+      DJANGO_DEFAULT_EMAIL: 'email@martinmark.com'
+      DJANGO_DEFAULT_ROLE: 'manager'
       # Any $ in your secret key needs another $ for interpolation. > ex. `...4v$0n^c...` becomes `...4v$$0n^c...` (read readme.md)
       DJANGO_SECRET: 'T2uy8pg3OjW26TdngnPA3LjuPlthW8AH6xIOBXu9oFs'
+      PYTHONUNBUFFERED: 1
+      PIP_NO_CACHE_DIR: 1
     ports:
       - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8000/api/logic/healthcheck/ || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 50
 
   hasura:
-    # Uncomment and comment image below to disable migrations
-    # image: hasura/graphql-engine:v1.3.3
-    image: hasura/graphql-engine:v1.3.3.cli-migrations-v2
+    # Change comments for image below to enable / disable metadata and SQL migrations
+    # image: hasura/graphql-engine:v2.3.0
+    image: hasura/graphql-engine:v2.3.0.cli-migrations-v3
     volumes:
       - ./hasura/migrations:/hasura-migrations
       - ./hasura/metadata:/hasura-metadata
     container_name: hds-hasura
     restart: always
     depends_on:
-      - 'postgres'
-      - 'django'
+      postgres:
+        condition: service_healthy
+      django:
+        condition: service_healthy
     environment:
       HASURA_GRAPHQL_ENABLE_CONSOLE: 'true'
       HASURA_GRAPHQL_DEV_MODE: 'true'
@@ -48,3 +70,14 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
 
+  client:
+    image: node:lts
+    container_name: hds-client
+    restart: always
+    command: bash -c "npm install && HOST=0.0.0.0 npm run dev"
+    ports:
+      - "127.0.0.1:35729:35729" # Live Reload
+      - "127.0.0.1:8088:8088"
+    working_dir: /home/node/apps/app
+    volumes:
+      - ./clients/svelte:/home/node/apps/app
