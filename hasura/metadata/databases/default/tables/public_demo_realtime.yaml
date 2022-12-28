@@ -14,7 +14,7 @@ insert_permissions:
     columns:
     - message
     set:
-      created_by: x-hasura-x-hasura-user-id
+      created_by: x-hasura-user-id
   role: manager
 - permission:
     backend_only: false
@@ -24,7 +24,7 @@ insert_permissions:
     columns:
     - message
     set:
-      created_by: x-hasura-x-hasura-user-id
+      created_by: x-hasura-user-id
   role: user
 select_permissions:
 - permission:

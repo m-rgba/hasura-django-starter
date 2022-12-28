@@ -71,6 +71,7 @@ actions:
   permissions:
   - role: user
   - role: manager
+  - role: public
 - name: user_register
   definition:
     kind: synchronous

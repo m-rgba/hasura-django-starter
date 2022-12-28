@@ -4,7 +4,7 @@ type Mutation {
   ): ChangePasswordStatus!
 }
 
-type Mutation {
+type Query {
   user_login(
     arg: UserLogin!
   ): UserToken!
@@ -28,7 +28,7 @@ type Query {
   ): ResetStatus!
 }
 
-type Mutation {
+type Query {
   user_refresh(
     arg: UserRefresh!
   ): UserAccessToken!
