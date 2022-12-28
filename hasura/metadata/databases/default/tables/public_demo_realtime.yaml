@@ -1,0 +1,71 @@
+table:
+  name: demo_realtime
+  schema: public
+object_relationships:
+- name: auth_user
+  using:
+    foreign_key_constraint_on: created_by
+insert_permissions:
+- permission:
+    backend_only: false
+    check:
+      created_by:
+        _eq: X-Hasura-User-Id
+    columns:
+    - message
+    set:
+      created_by: x-hasura-user-id
+  role: manager
+- permission:
+    backend_only: false
+    check:
+      created_by:
+        _eq: X-Hasura-User-Id
+    columns:
+    - message
+    set:
+      created_by: x-hasura-user-id
+  role: user
+select_permissions:
+- permission:
+    columns:
+    - created_at
+    - created_by
+    - id
+    - message
+    filter: {}
+  role: manager
+- permission:
+    columns:
+    - created_at
+    - created_by
+    - id
+    - message
+    filter: {}
+  role: user
+update_permissions:
+- permission:
+    check: {}
+    columns:
+    - message
+    filter: {}
+  role: manager
+- permission:
+    check:
+      created_by:
+        _eq: X-Hasura-User-Id
+    columns:
+    - message
+    filter:
+      created_by:
+        _eq: X-Hasura-User-Id
+  role: user
+delete_permissions:
+- permission:
+    filter: {}
+  role: manager
+- permission:
+    filter:
+      created_by:
+        _eq: X-Hasura-User-Id
+  role: user

@@ -1,0 +1,10 @@
+django<4
+django-cors-headers<4
+django-import-export<3
+django-rest-passwordreset<2
+djangorestframework<4
+djangorestframework-simplejwt<5
+gunicorn<21
+uuid<2
+psycopg2<3
+requests<3

@@ -7,10 +7,12 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from rest_framework_simplejwt import authentication
 from django.contrib.auth.models import User 
-from api.models import profile
 import requests
 import logging
 import json
+
+# Set user model as unique
+User._meta.get_field('email')._unique = True
 
 # TODO: Create re-issue endpoint
 # refresh = HasuraTokenObtainPairSerializer.get_token(user)
@@ -24,8 +26,8 @@ class HasuraTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['user_name'] = user.username
         token['user_email'] = user.email
         token['https://hasura.io/jwt/claims'] = {}
-        token['https://hasura.io/jwt/claims']['x-hasura-allowed-roles'] = [user.profile.role]
-        token['https://hasura.io/jwt/claims']['x-hasura-default-role'] = user.profile.role
+        token['https://hasura.io/jwt/claims']['x-hasura-allowed-roles'] = [user.profile.role.name]
+        token['https://hasura.io/jwt/claims']['x-hasura-default-role'] = user.profile.role.name
         token['https://hasura.io/jwt/claims']['x-hasura-user-id'] = str(user.id)
         return token
 
@@ -53,7 +55,7 @@ class ValidateTokenRefreshSerializer(TokenRefreshSerializer):
                 self.error_msg, 'no_active_account'
             )
 
-        if user.profile.role != token_payload['https://hasura.io/jwt/claims']['x-hasura-default-role']:            
+        if user.profile.role.name != token_payload['https://hasura.io/jwt/claims']['x-hasura-default-role']:            
             print(user.profile.role)
             print(token_payload['https://hasura.io/jwt/claims']['x-hasura-default-role'])
             print('Roles Dont Match')

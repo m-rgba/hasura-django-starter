@@ -1,0 +1,44 @@
+table:
+  name: api_role
+  schema: public
+array_relationships:
+- name: api_profiles
+  using:
+    foreign_key_constraint_on:
+      column: role_id
+      table:
+        name: api_profile
+        schema: public
+insert_permissions:
+- permission:
+    backend_only: false
+    check: {}
+    columns:
+    - name
+  role: manager
+select_permissions:
+- permission:
+    columns:
+    - id
+    - name
+    - uuid
+    filter: {}
+  role: manager
+- permission:
+    columns:
+    - id
+    - name
+    - uuid
+    filter: {}
+  role: user
+update_permissions:
+- permission:
+    check: {}
+    columns:
+    - name
+    filter: {}
+  role: manager
+delete_permissions:
+- permission:
+    filter: {}
+  role: manager
