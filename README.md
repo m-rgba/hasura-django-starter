@@ -72,7 +72,7 @@ A sample client application which helps illustrate everything tied together:
 -----
 
 ## Project Layout
-![Project Layout](./readme-layout.png)
+![Project Layout](./readme-layout-new.png)
 
 ## Hasura Directory Layout
     ./hasura/metadata/
