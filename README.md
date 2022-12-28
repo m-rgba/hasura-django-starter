@@ -4,25 +4,38 @@ A project starter which pairs up the best features of Hasura with Django ❤️
 
 The best of Hasura's instant, realtime GraphQL API meshed with Django's built-in auth model and the ability to extend logic across the two services.
 
-## Latest Update
+## Latest Update (v2)
 ***(Now with 100% more Hasura 2.0+ examples)***
 
 **Updates / New Features**
-- Updated to use Hasura 2.0+.
-    - Makes more effective use of Actions for mapping Django REST endpoints to GraphQL.
-- Updated Hasura metadata to V3
-- Updated to use Graphqurl JS client: https://github.com/hasura/graphqurl.
-- Added `DJANGO_DEFAULT_USERNAME`, `DJANGO_DEFAULT_PASSWORD`, `DJANGO_DEFAULT_EMAIL`, `DJANGO_DEFAULT_ROLE` in env vars (to create initial user).
-- Added healthchecks to ensure order of operations (PG => Django (inc. migrations) => Hasura)
-
-**Need More Demos?**
-- Demo schemas were removed from this demo (aside from the realtime demo table for the client):
-    - There's a set of demo schemas + metdata which can now be loaded through:
-    - http://localhost:9695/console/data/default/
+- Updated to use Hasura 2.0+ and Hasura Metadata v3
+    - Makes more effective use of Actions for mapping Django REST endpoints to GraphQL nodes (no REST usage).
+- Added healthchecks to docker-compose (to help with the order-of-operations of installing migrations Postgres Up > Django Migrations > Hasura Migrations)
+- Added `DJANGO_DEFAULT_USERNAME`, `DJANGO_DEFAULT_PASSWORD`, `DJANGO_DEFAULT_EMAIL`, `DJANGO_DEFAULT_ROLE` in env vars (to create initial superuser).
 
 **Looking for 1.3.3?**
 - Looking for the first release with support for Hasura 1.3.3?
 - Check out here: https://github.com/m-rgba/hasura-django-starter/tree/1.0
+
+-----
+
+## Get Started
+Running these 3 commands will get your project up and running (as long as you have Docker installed).
+
+```
+git clone https://github.com/mm-io/hasura-django-starter.git && cd ./hasura-django-starter && docker-compose up
+```
+
+***Already cloned the repo?*** Just run `docker-compose up` from the project directory.
+
+For Docker installation - see here: https://docs.docker.com/get-docker/
+
+Afterwards:
+- Your Hasura Console dashboard will be exposed at: http://localhost:8080/console
+  - You can start creating / exposing tables for your API here: http://localhost:8080/console/data/schema/public
+  - You can test with your GraphQL endpoint here: http://localhost:8080/v1/graphql
+- Your client demo will be available at: http://localhost:8088
+- Your REST API (for Django stuff) will be accessible over: http://localhost:8000
 
 -----
 
@@ -38,25 +51,11 @@ The best of Hasura's instant, realtime GraphQL API meshed with Django's built-in
 
 ### Django
 - Registration, login, and password reset auth-flows (REST-based).
+  - See `./django.requirements.txt` for any packages used.
 - JWT tokens (Simple-JWT), with custom Hasura claims by way of Django's built-in auth-layer.
 - Extended user model (added role, registration, UUID, registration_sent > flag for new user emails).
 - Ability to extend Hasura's logic through endpoints (+ getting auth-only endpoints for **free*).
 - Django-specific database migrations and container auto-apply (user model).
-
-## Get Started
-Running these 3 commands will get your project up and running (as long as you have Docker installed).
-For Docker installation - see here: https://docs.docker.com/get-docker/
-
-```
-git clone https://github.com/mm-io/hasura-django-starter.git && cd ./hasura-django-starter && docker-compose up
-```
-
-***Already cloned the repo?*** Just run `docker-compose up` from the project directory.
-
-Afterwards:
-- Your Hasura Console dashboard will be exposed at: http://localhost:8080/console
-- You can start creating / exposing tables to your API here: http://localhost:8080/console/data/schema/public
-- You can test with your GraphQL endpoint here: http://localhost:8080/v1/graphql
 
 ## Client Sample Starter (Svelte)
 
@@ -129,7 +128,7 @@ More information here: https://stackoverflow.com/questions/40619582/how-can-i-es
 
 ## Django Auth Endpoints
 
-**As of 2.0 these are mapped to GraphQL nodes using Hasura Actions**
+**As of 2.0 these are mapped to GraphQL nodes using Hasura Actions.**
 
 ## Register User
 ```
@@ -165,7 +164,7 @@ http://localhost:8000/api/login/
 
 **GQL Query:**
 ```graphql
-mutation userLogin($username: String = "", $password: String = "") {
+query userLogin($username: String = "", $password: String = "") {
   user_login(arg: {username: $username, password: $password}) {
     access
     refresh
@@ -188,7 +187,7 @@ http://localhost:8000/api/token/refresh/
 
 **GQL Query:**
 ```graphql
-mutation userRefresh($refresh: String = "") {
+query userRefresh($refresh: String = "") {
   user_refresh(arg: {refresh: $refresh}) {
     access
   }
@@ -220,7 +219,7 @@ mutation userChangePassword($old_password: String = "", $new_password: String = 
 ```json
 {
   "old_password": "[OLD PASSWORD]",
-  "new_password": "[NEW PASSWORD ]"
+  "new_password": "[NEW PASSWORD]"
 }
 ```
 
@@ -255,8 +254,8 @@ http://localhost:8000/api/reset_password/validate_token/
 
 **GQL Query:**
 ```graphql
-query userPasswordResetValidate($email: String = "", $token: String = "") {
-  UserResetValidate(arg: {email: $email, token: $token}) {
+query userPasswordResetValidateToken($email: String = "", $token: String = "") {
+  user_password_reset_validate(arg: {email: $email, token: $token}) {
     status
   }
 }
@@ -277,7 +276,7 @@ http://localhost:8000/api/reset_password/confirm/
 
 **GQL Query:**
 ```graphql
-mutation userPasswordResetConfirm($email: String = "", $token: String = "", $password: String = "") {
+mutation userPasswordResetChangeConfirm($email: String = "", $token: String = "", $password: String = "") {
   user_password_reset_confirm(arg: {email: $email, token: $token, password: $password}) {
     status
   }
