@@ -1,5 +1,4 @@
 <script>
-    import { onMount } from "svelte";
     import moment from 'moment';
     import { token } from '../shared/auth.js'
     import { gqlResponseHandler } from '../shared/requests.js'
@@ -25,9 +24,9 @@
     let errorMessage;
 
     setClient(client);
-    const MESSAGES = gql`
+    const messages = gql`
         subscription realtimeMsgs {
-        demo_realtime {
+            demo_realtime {
                 message
                 created_by
                 created_at
@@ -37,7 +36,8 @@
             }
         }
     `;
-    const messageSubscribe = subscribe(client, { query: MESSAGES });
+    const messageSubscribe = subscribe(client, { query: messages });
+    console.log(messageSubscribe);
 
     async function sendMessage() {
         let query;
@@ -136,7 +136,7 @@
         <div class="row mb-sm">
             <div class="col-3"> </div>
             <div class="col-6">
-                <h1 class="mb-xs">Realtime Demo</h1>
+                <h1 class="mb-xs">Realtime Demo [Test...]</h1>
                 <p class="muted">This is a demonstration of the realtime capabilities of Hasura's GraphQL API.</p>
                 <p class="muted">Send a message as another account and you'll be able to see messages stream in.</p>
                 <p class="muted">On the client side we're using svelte-apollo to display the results.</p>
@@ -145,10 +145,8 @@
         <div class="row">
             <div class="col-3"> </div>
             <div class="col-6 mb-sm">
-
                 <div class="messages">
-
-                    {#await $messageSubscribe}
+                {#await $messageSubscribe}
                     <div class="row mb-sm">
                         <div class="col-10">
                             <div class="card pad other-message">
@@ -181,42 +179,40 @@
                             </div>
                         </div>
                     </div>
-
-                    {:then $messageSubscribe}
+                {:then $messageSubscribe}
+                    <div class="row mb-sm">
+                        <div class="col-10">
+                            <div class="card pad other-message">
+                                <p><strong>System</strong></p>
+                                <p>Hi there! Give it a try, send your first message.</p>
+                            </div>
+                        </div>
+                    </div>
+                {#each $messageSubscribe.data.demo_realtime as message}
+                    {#if message.auth_user.username === username}
+                        <div class="row mb-sm">
+                            <div class="col-2"></div>
+                            <div class="col-10">
+                                <div class="card pad my-message">
+                                    <p><strong>{message.auth_user.username}</strong> <span class="pull-right" style="opacity:0.7">{moment(message.created_at).format('lll')}</span></p>
+                                    <p>{message.message}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {:else}
                         <div class="row mb-sm">
                             <div class="col-10">
                                 <div class="card pad other-message">
-                                    <p><strong>System</strong></p>
-                                    <p>Hi there! Give it a try, send your first message.</p>
+                                    <p><strong>{message.auth_user.username}</strong> <span class="pull-right" style="opacity:0.7">{moment(message.created_at).format('lll')}</span></p>
+                                    <p>{message.message}</p>
                                 </div>
                             </div>
                         </div>
-
-                        {#each $messageSubscribe.data.demo_realtime as message}
-                            {#if message.auth_user[0].username === username}
-                                <div class="row mb-sm">
-                                    <div class="col-2"></div>
-                                    <div class="col-10">
-                                        <div class="card pad my-message">
-                                            <p><strong>{message.auth_user[0].username}</strong> <span class="pull-right" style="opacity:0.7">{moment(message.created_at).format('lll')}</span></p>
-                                            <p>{message.message}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            {:else}
-                                <div class="row mb-sm">
-                                    <div class="col-10">
-                                        <div class="card pad other-message">
-                                            <p><strong>{message.auth_user[0].username}</strong> <span class="pull-right" style="opacity:0.7">{moment(message.created_at).format('lll')}</span></p>
-                                            <p>{message.message}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            {/if}
-                    {/each}                    
-                    {:catch error}
-                        {JSON.stringify(error)}
-                    {/await}
+                    {/if}
+                {/each}                    
+                {:catch error}
+                    {JSON.stringify(error)}
+                {/await}
                 </div>
 
                 <div id="message-box" class="card pad shadow">

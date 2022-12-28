@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { navigate, link } from "svelte-routing";
     import { token } from '../shared/auth.js'
-    import { restResponseHandler, gqlResponseHandler } from '../shared/requests.js'
+    import { gqlResponseHandler } from '../shared/requests.js'
 
     // Components
     import Header from "../components/Header.svelte"
@@ -29,7 +29,11 @@
                     email
                     is_active
                     api_profile {
-                        role
+                        api_role{
+                            id
+                            name
+                        }
+                        uuid
                     }
                 }
             }
@@ -45,7 +49,7 @@
         if (userProfile.success === true){
             is_active = userProfile.response.auth_user[0].is_active;
             email = userProfile.response.auth_user[0].email;
-            role = userProfile.response.auth_user[0].api_profile.role;
+            role = userProfile.response.auth_user[0].api_profile.api_role.id;
         } else {
             errorMessage = userProfile.response;
         }  
@@ -55,12 +59,12 @@
         const variable = {};
         const query = `
             mutation updateUserStatus($username: String!, $statusType: Boolean!) {
-                    update_auth_user(where: {username: {_eq: $username}}, _set: {is_active: $statusType}) {
-                        returning {
-                            username
-                        }
+                update_auth_user(where: {username: {_eq: $username}}, _set: {is_active: $statusType}) {
+                    returning {
+                        username
                     }
                 }
+            }
         `;
         variable["username"] = username;
         variable["statusType"] = statusType;
@@ -82,18 +86,18 @@
     async function updateUserHandler() {
         const variable = {};
         const query = `
-            mutation updateUser($username: String!, $email: String!, $role: String!) {
-                update_auth_user(where: {username: {_eq: $username}}, _set: {email: $email}){
+            mutation updateUser($username: String!, $email: String!, $roleID: bigint!) {
+                update_auth_user(where: {username: {_eq: $username}}, _set: {email: $email}) {
                     affected_rows
                 }
-                update_api_profile(where: {auth_user: {username: {_eq: $username}}}, _set: {role: $role}) {
+                update_api_profile(where: {auth_user: {username: {_eq: $username}}}, _set: {role_id: $roleID}) {
                     affected_rows
                 }
             }
         `;
         variable["username"] = username;
         if (newEmail === ''){ variable["email"] = email; } else { variable["email"] = newEmail; }
-        variable["role"] = role;
+        variable["roleID"] = role;
         const accessToken = await token();
         const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
@@ -158,8 +162,8 @@
                             <p class="strong">Role</p>
                             <select bind:value={role} class="mb-xs w-100" name="roles">
                                 <option disabled value="">Select a Role</option>
-                                <option value="manager">Manager</option>
-                                <option value="user">User</option>
+                                <option value="2">Manager</option>
+                                <option value="1">User</option>
                             </select>
 
                             <button type="submit" class="w-100 mb-xs">Update Profile</button>

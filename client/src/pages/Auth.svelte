@@ -1,6 +1,6 @@
 <script>
     import { authLoaded } from '../stores/auth.js'
-    import { restResponseHandler } from '../shared/requests.js'
+    import { gqlResponseHandler } from '../shared/requests.js'
 
     import Cookies from 'js-cookie'
     import jwt_decode from "jwt-decode";
@@ -54,28 +54,35 @@
         } else if ( passCheck !== true ){
             errorMessage = "Your passwords must be a strong password. It must contain at least one lowercase character, uppercase character, special character, and number.";
         } else {
-            const request = await fetch("http://localhost:8000/api/user/register/", {
+            const variable = {};
+            const query = `
+                mutation userRegister($email: String = "", $password: String = "", $username: String = "") {
+                    user_register(arg: {password: $password, username: $username, email: $email}) {
+                        id
+                        username
+                        email
+                        tokens
+                    }
+                }
+            `;
+            variable["username"] = username;
+            variable["email"] = email;
+            variable["password"] = password;
+            const request = await fetch("http://localhost:8080/v1/graphql", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify({ 
-                    "username" : username, 
-                    "email" : email,
-                    "password" : password 
-                }),
+                headers: { "Content-Type": "application/json", Accept: "application/json" },
+                body: JSON.stringify({ query: query, variables: variable })
             });
-            const signUpUser = await restResponseHandler(request);
+            const signUpUser = await gqlResponseHandler(request);
             if (signUpUser.success === true){
-                    localStorage.setItem("token", signUpUser.response.tokens.access);
-                    const tokenDecoded = jwt_decode(signUpUser.response.tokens.access);
+                    localStorage.setItem("token", signUpUser.response.user_register.tokens.access);
+                    const tokenDecoded = jwt_decode(signUpUser.response.user_register.tokens.access);
                     // We're only storing JWT items for ease of use > the backend will validate all items in queries
                     localStorage.setItem("token_expiry", tokenDecoded.exp);
                     localStorage.setItem("user_name", tokenDecoded.user_name);
                     localStorage.setItem("user_email", tokenDecoded.user_email);
                     localStorage.setItem("user_role", tokenDecoded["https://hasura.io/jwt/claims"]["x-hasura-default-role"]);
-                    Cookies.set('refresh', signUpUser.response.tokens.refresh, { sameSite: 'strict' });
+                    Cookies.set('refresh', signUpUser.response.user_register.tokens.refresh, { sameSite: 'strict' });
                     location.replace("/");
             } else {
                 errorMessage = signUpUser.response;
@@ -84,45 +91,56 @@
     }
 
     async function loginHandler() {
-        const request = await fetch("http://localhost:8000/api/login/", {
+        const variable = {};
+        const query = `
+            query userLogin($username: String = "", $password: String = "") {
+                user_login(arg: {username: $username, password: $password}) {
+                    access
+                    refresh
+                }
+            }
+        `;
+        variable["username"] = username;
+        variable["password"] = password;
+        const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-            body: JSON.stringify({ 
-                "username" : username,
-                "password" : password 
-            }),
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ query: query, variables: variable })
         });
-        const loginUser = await restResponseHandler(request);
+        const loginUser = await gqlResponseHandler(request);
         if (loginUser.success === true){
-                localStorage.setItem("token", loginUser.response.access);
-                const tokenDecoded = jwt_decode(loginUser.response.access);
+                console.log(loginUser);
+                localStorage.setItem("token", loginUser.response.user_login.access);
+                const tokenDecoded = jwt_decode(loginUser.response.user_login.access);
                 // We're only storing JWT items for ease of use > the backend will validate all items in queries
                 localStorage.setItem("token_expiry", tokenDecoded.exp);
                 localStorage.setItem("user_name", tokenDecoded.user_name);
                 localStorage.setItem("user_email", tokenDecoded.user_email);
                 localStorage.setItem("user_role", tokenDecoded["https://hasura.io/jwt/claims"]["x-hasura-default-role"]);
-                Cookies.set('refresh', loginUser.response.refresh, { sameSite: 'strict' });
+                Cookies.set('refresh', loginUser.response.user_login.refresh, { sameSite: 'strict' });
                 location.replace("/");
         } else {
             errorMessage = loginUser.response;
         }
     }
-
+    
     async function resetHandler() {
-        const request = await fetch("http://localhost:8000/api/user/reset_password/", {
+        const variable = {};
+        const query = `
+            mutation userPasswordReset($email: String = "") {
+                user_password_reset(arg: {email: $email}) {
+                    status
+                }
+            }
+        `;
+        variable["email"] = email;
+        const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-            body: JSON.stringify({ 
-                "email" : email
-            }),
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ query: query, variables: variable })
         });
-        if (request.ok) {
+        const resetUser = await gqlResponseHandler(request);
+        if (resetUser.success === true){
             successMessage = 'We\'ve sent you an email to confirm your account. Selecting the link from your email will allow you to reset the password to your account.';
         } else {
             errorMessage = 'It looks like there was a problem. This could be because that email isn\'t associated with any accounts in our system. Please try again.';

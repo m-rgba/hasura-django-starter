@@ -1,7 +1,7 @@
 <script>
     import { onMount } from "svelte";
     import { navigate, link } from "svelte-routing";
-    import { restResponseHandler } from '../shared/requests.js'
+    import { gqlResponseHandler } from '../shared/requests.js'
 
     // Components
     import Header from "../components/Header.svelte"
@@ -52,19 +52,26 @@
         } else if ( passCheck !== true ){
             errorMessage = "Your passwords must be a strong password. It must contain at least one lowercase character, uppercase character, special character, and number.";
         } else {
-            const request = await fetch("http://localhost:8000/api/user/register/", {
+            const variable = {};
+            const query = `
+                mutation userRegister($email: String = "", $password: String = "", $username: String = "") {
+                    user_register(arg: {password: $password, username: $username, email: $email}) {
+                        id
+                        username
+                        email
+                        tokens
+                    }
+                }
+            `;
+            variable["username"] = username;
+            variable["email"] = email;
+            variable["password"] = password;
+            const request = await fetch("http://localhost:8080/v1/graphql", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify({ 
-                    "username" : username, 
-                    "email" : email,
-                    "password" : password 
-                }),
+                headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },
+                body: JSON.stringify({ query: query, variables: variable })
             });
-            const createUser = await restResponseHandler(request);
+            const createUser = await gqlResponseHandler(request);
             if (createUser.success === true){
                 navigate("/users?created=true", { replace: true });
             } else {

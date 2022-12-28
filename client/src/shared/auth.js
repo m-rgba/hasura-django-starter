@@ -1,30 +1,34 @@
 import { authLoaded } from '../stores/auth.js'
 import Cookies from 'js-cookie'
 import jwt_decode from "jwt-decode";
+import { gqlResponseHandler } from '../shared/requests.js'
 
 export async function token(redirect) {
-    // console.log('> Running token();')
+    // Running token()
     const refresh = Cookies.get('refresh');
     const accessToken = localStorage.getItem('token');
     const accessExpiry = localStorage.getItem("token_expiry");
     const currentTime = Date.now();
     const currentTimeTrim = (currentTime-(currentTime%1000))/1000;
     if (accessToken && currentTimeTrim >= accessExpiry || !accessToken && refresh) {
-        // console.log('> No Access Token / Expired > Getting New Token');
-        const request = await fetch("http://localhost:8000/api/token/refresh/", {
+        //  No Access Token / Expired > Getting New Token
+        const variable = {};
+        const query = `
+            query userRefresh($refresh: String = "") {
+                user_refresh(arg: {refresh: $refresh}) {
+                    access
+                }
+            }          
+        `;
+        variable["refresh"] = refresh;
+        const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-            body: JSON.stringify({ 
-                "refresh" : refresh 
-            }),
+            headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },
+            body: JSON.stringify({ query: query, variables: variable })
         });
-        if (request.ok) {
-            // console.log('> Parsing new token')
-            const response = await request.json();
-            const tokenResponse = response.access;
+        const refreshReq = await gqlResponseHandler(request);
+        if (refreshReq.success === true){
+            const tokenResponse = refreshReq.response.user_refresh.access;
             const tokenDecoded = jwt_decode(tokenResponse);
             // Load up new token > go home / we'll stash role and user name for display reasons (permissions are handled Hasura/Django-side)
             // Stashing expiry for token expiry to know when to re-run the token refresh
@@ -37,11 +41,9 @@ export async function token(redirect) {
             authLoaded.set(true);
             return(tokenResponse);
         } else {
-            // console.log('> Getting new token failed > Clearing tokens')
             clearTokens(redirect);
         }
     } else if (!refresh){
-        // console.log('> No refresh token > Clearing tokens')
         clearTokens(redirect);
     } else {
         // All good, return old access token

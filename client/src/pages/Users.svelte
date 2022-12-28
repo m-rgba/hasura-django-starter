@@ -73,13 +73,19 @@
                     email
                     is_active
                     api_profile {
-                        role
+                        api_role{
+                            name
+                        }
                         uuid
                     }
                 }
             }
         `;
-        if (searchQuery === ''){ variable["searchQuery"] = null; } else { variable["searchQuery"] = searchQuery; }
+        if (!searchQuery){ 
+            variable["searchQuery"] = "%"; 
+        } else { 
+            variable["searchQuery"] = searchQuery; 
+        }
         const accessToken = await token();
         const request = await fetch("http://localhost:8080/v1/graphql", {
             method: "POST",
@@ -156,7 +162,7 @@
                                                 </td>
                                                 <td><a use:link href="/user/{user.username}">{user.username}</a></td>
                                                 <td>{user.email}</td>
-                                                <td>{user.api_profile.role}</td>
+                                                <td style="text-transform: capitalize;">{user.api_profile.api_role.name}</td>
                                                 {#if user.is_active === true}
                                                     <td><span class="badge positive">Active</span></td>
                                                     <td class="actions tbl-disable">

@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { link } from "svelte-routing";
     import { token } from '../shared/auth.js'
-    import { restResponseHandler, gqlResponseHandler } from '../shared/requests.js'
+    import { gqlResponseHandler } from '../shared/requests.js'
 
     // Components
     import Header from "../components/Header.svelte"
@@ -85,20 +85,24 @@
         } else if (passCheck != true){
             errorMessage = "Your passwords must be a strong password. It must contain at least one lowercase character, uppercase character, special character, and number.";
         } else {
+            const variable = {};
+            const query = `
+                mutation userChangePassword($old_password: String = "", $new_password: String = "") {
+                    user_change_password(arg: {old_password: $old_password, new_password: $new_password}) {
+                        status
+                        code
+                    }
+                }
+            `;
+            variable["old_password"] = passwordOld;
+            variable["new_password"] = password;
             const accessToken = await token();
-            const request = await fetch("http://localhost:8000/api/user/change_password/", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                    Authorization: "Bearer " + accessToken
-                },
-                body: JSON.stringify({ 
-                    "old_password" : passwordOld,
-                    "new_password" : password
-                }),
+            const request = await fetch("http://localhost:8080/v1/graphql", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },
+                body: JSON.stringify({ query: query, variables: variable })
             });
-            const updatePassword = await restResponseHandler(request);
+            const updatePassword = await gqlResponseHandler(request);
             if (updatePassword.success === true){
                 successMessage =  'Your password has been updated.';
             } else {

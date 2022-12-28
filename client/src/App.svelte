@@ -46,16 +46,14 @@
 			});
 			const updateLastLogin = await gqlResponseHandler(request);
 			if (updateLastLogin.success === true){
-                // console.log('> Last login > Updated');
+				// console.log('> Last login > Updated');
 			} else {
 				// console.log('> Last login > Failed');
 			}
 		} else {
-            // console.log('> Last login > Cancelled');
+			// console.log('> Last login > Cancelled');
         }
     };
-
-	// console.log('> Mounted Main App')
 </script>
 
 <Router>
