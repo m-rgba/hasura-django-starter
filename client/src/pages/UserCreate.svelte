@@ -1,6 +1,7 @@
 <script>
     import { onMount } from "svelte";
     import { navigate, link } from "svelte-routing";
+    import { token } from '../shared/auth.js'
     import { gqlResponseHandler } from '../shared/requests.js'
 
     // Components
@@ -66,6 +67,7 @@
             variable["username"] = username;
             variable["email"] = email;
             variable["password"] = password;
+            const accessToken = await token();
             const request = await fetch("http://localhost:8080/v1/graphql", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + accessToken, },

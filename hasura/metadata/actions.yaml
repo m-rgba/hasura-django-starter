@@ -84,6 +84,7 @@ actions:
       query_params: {}
       template_engine: Kriti
   permissions:
+  - role: manager
   - role: public
 custom_types:
   enums: []
