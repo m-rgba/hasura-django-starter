@@ -4,6 +4,8 @@ services:
     image: postgres:14
     container_name: hds-postgres
     restart: always
+    ports:
+      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_USER: 'postgres'
       POSTGRES_DB: 'postgres'
@@ -25,30 +27,32 @@ services:
         condition: service_healthy
     working_dir: /django
     entrypoint: ["sh", "entrypoint.sh"]
+    ports:
+      - "127.0.0.1:8000:8000"
     environment:
       # Comma seperated roles available
       DJANGO_ROLES: 'manager, user'
+      # -- UPDATE DEFAULT USER
       # Username and password for initial superuser
       DJANGO_DEFAULT_USERNAME: 'AdminUser'
       DJANGO_DEFAULT_PASSWORD: 'AdminPassword'
       DJANGO_DEFAULT_EMAIL: 'email@martinmark.com'
       DJANGO_DEFAULT_ROLE: 'manager'
+      # -- UPDATE SECRET
       # Any $ in your secret key needs another $ for interpolation. > ex. `...4v$0n^c...` becomes `...4v$$0n^c...` (read readme.md)
       DJANGO_SECRET: 'T2uy8pg3OjW26TdngnPA3LjuPlthW8AH6xIOBXu9oFs'
       PYTHONUNBUFFERED: 1
       PIP_NO_CACHE_DIR: 1
-    ports:
-      - "127.0.0.1:8000:8000"
     healthcheck:
       test: ["CMD-SHELL", "curl --fail http://localhost:8000/api/logic/healthcheck/ || exit 1"]
       interval: 5s
       timeout: 5s
-      retries: 50
+      retries: 25
 
   hasura:
     # Change comments for image below to enable / disable metadata and SQL migrations
     # image: hasura/graphql-engine:v2.3.0
-    image: hasura/graphql-engine:v2.3.0.cli-migrations-v3
+    image: hasura/graphql-engine:v2.16.1.cli-migrations-v3
     volumes:
       - ./hasura/migrations:/hasura-migrations
       - ./hasura/metadata:/hasura-metadata
@@ -59,19 +63,20 @@ services:
         condition: service_healthy
       django:
         condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
     environment:
       HASURA_GRAPHQL_ENABLE_CONSOLE: 'true'
       HASURA_GRAPHQL_DEV_MODE: 'true'
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: 'public'
       HASURA_GRAPHQL_DATABASE_URL: 'postgres://postgres:password@postgres:5432/postgres'
       HASURA_GRAPHQL_ADMIN_SECRET: 'password'
+      # -- UPDATE SECRET
       # Any $ in your secret key needs another $ for interpolation. > ex. `...4v$0n^c...` becomes `...4v$$0n^c...` (read readme.md)
       HASURA_GRAPHQL_JWT_SECRET: '{ "type": "HS256", "key": "T2uy8pg3OjW26TdngnPA3LjuPlthW8AH6xIOBXu9oFs" }'
-    ports:
-      - "127.0.0.1:8080:8080"
 
   client:
-    image: node:lts
+    image: node:16
     container_name: hds-client
     restart: always
     command: bash -c "npm install && HOST=0.0.0.0 npm run dev"
@@ -80,4 +85,4 @@ services:
       - "127.0.0.1:8088:8088"
     working_dir: /home/node/apps/app
     volumes:
-      - ./clients/svelte:/home/node/apps/app
+      - ./client:/home/node/apps/app
